@@ -30,7 +30,7 @@ class DMEM(object):
         self.max_value  = pow(2, 31) - 1
         self.ipfilepath = os.path.abspath(os.path.join(iodir, name + ".txt"))
         self.opfilepath = os.path.abspath(os.path.join(iodir, name + "OP.txt"))
-        self.data = []
+        self.data = []  # self.data is an int array
 
         try:
             with open(self.ipfilepath, 'r') as ipf:
@@ -41,10 +41,10 @@ class DMEM(object):
         except:
             print(self.name, "- ERROR: Couldn't open input file in path:", self.ipfilepath)
 
-    def Read(self, idx): # Use this to read from DMEM.
+    def Read(self, idx: int) -> int: # Use this to read from DMEM.
         pass # Replace this line with your code here.
 
-    def Write(self, idx, val): # Use this to write into DMEM.
+    def Write(self, idx: int, val: int): # Use this to write into DMEM.
         pass # Replace this line with your code here.
 
     def dump(self):
@@ -66,10 +66,10 @@ class RegisterFile(object):
         self.max_value  = pow(2, self.reg_bits-1) - 1
         self.registers  = [[0x0 for e in range(self.vec_length)] for r in range(self.reg_count)] # list of lists of integers
 
-    def Read(self, idx):
+    def Read(self, idx: int) -> list(int):
         pass # Replace this line with your code.
 
-    def Write(self, idx, val):
+    def Write(self, idx: int, val: list(int)):
         pass # Replace this line with your code.
 
     def dump(self, iodir):
@@ -93,7 +93,9 @@ class Core():
         self.RFs = {"SRF": RegisterFile("SRF", 8),
                     "VRF": RegisterFile("VRF", 8, 64)}
         
-        # Your code here.
+        self.PC = 0
+        self.VLR = 64
+        self.VMR = [1 for i in range(64)]
         
     def run(self):
         while(True):

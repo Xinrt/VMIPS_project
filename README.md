@@ -6,17 +6,20 @@
 
 #### complete the VMIPS components
 
-- VDMEM
-- SDMEM
-- Register Files
+- [ ] DMEM: Xinran
+  - Vector DMEM
+  - Register DMEM
+- [ ] Register Files: Tianheng
   - Scalar Register File
   - Vector Register File
-  - Vector Mask Register
-  - Vector Length Register
+- [x] Vector Mask Register(int list): 64 bits
+- [x] Vector Length Register(int): 32 bits
 
 #### two functions
 
 - dot product function
+  **TODO:** 
+  how to write dot product function in assembly?
 
   computes the dot product of two vectors of 450 elements each and store the result in to address 2048 of VDMEM
 
@@ -26,7 +29,10 @@
 
 
 
-#### test files
+#### instructions
+- 22 instructions
+  - parsing
+  - execute
 
 
 

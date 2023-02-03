@@ -45,12 +45,13 @@ class DMEM(object):
             print(self.name, "- ERROR: Couldn't open input file in path:", self.ipfilepath)
 
     def Read(self, idx: int) -> int:  # Use this to read from DMEM.
+        """"For vector data memory, notice that the return value of Read is an int"""
         return self.data[idx]
-        # pass  # Replace this line with your code here.
 
     def Write(self, idx: int, val: int):  # Use this to write into DMEM.
+        """"For vector data memory, notice to pass val as an int"""
+        assert isinstance(val, int), f"In Dmem write: val expected an int, but got {type(val).__name__}"
         self.data[idx] = val
-        # pass  # Replace this line with your code here.
 
     def dump(self):
         try:

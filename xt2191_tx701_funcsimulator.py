@@ -1,9 +1,10 @@
 import os
 import argparse
 
+
 class IMEM(object):
     def __init__(self, iodir):
-        self.size = pow(2, 16) # Can hold a maximum of 2^16 instructions.
+        self.size = pow(2, 16)  # Can hold a maximum of 2^16 instructions.
         self.filepath = os.path.abspath(os.path.join(iodir, "Code.asm"))
         self.instructions = []
 
@@ -15,19 +16,21 @@ class IMEM(object):
         except:
             print("IMEM - ERROR: Couldn't open file in path:", self.filepath)
 
-    def Read(self, idx): # Use this to read from IMEM.
+    def Read(self, idx):  # Use this to read from IMEM.
         if idx < self.size:
             return self.instructions[idx]
         else:
             print("IMEM - ERROR: Invalid memory access at index: ", idx, " with memory size: ", self.size)
 
+
 class DMEM(object):
     # Word addressible - each address contains 32 bits.
+    # one address -> one instruction
     def __init__(self, name, iodir, addressLen):
         self.name = name
-        self.size = pow(2, addressLen)
-        self.min_value  = -pow(2, 31)
-        self.max_value  = pow(2, 31) - 1
+        self.size = pow(2, addressLen)  # sdmem: 2^13, vdmem:2^17 lines
+        self.min_value = -pow(2, 31)
+        self.max_value = pow(2, 31) - 1
         self.ipfilepath = os.path.abspath(os.path.join(iodir, name + ".txt"))
         self.opfilepath = os.path.abspath(os.path.join(iodir, name + "OP.txt"))
         self.data = []  # self.data is an int array
@@ -41,11 +44,13 @@ class DMEM(object):
         except:
             print(self.name, "- ERROR: Couldn't open input file in path:", self.ipfilepath)
 
-    def Read(self, idx: int) -> int: # Use this to read from DMEM.
-        pass # Replace this line with your code here.
+    def Read(self, idx: int) -> int:  # Use this to read from DMEM.
+        return self.data[idx]
+        # pass  # Replace this line with your code here.
 
-    def Write(self, idx: int, val: int): # Use this to write into DMEM.
-        pass # Replace this line with your code here.
+    def Write(self, idx: int, val: int):  # Use this to write into DMEM.
+        self.data[idx] = val
+        # pass  # Replace this line with your code here.
 
     def dump(self):
         try:
@@ -56,33 +61,37 @@ class DMEM(object):
         except:
             print(self.name, "- ERROR: Couldn't open output file in path:", self.opfilepath)
 
+
 class RegisterFile(object):
-    def __init__(self, name, count, length = 1, size = 32):
-        self.name       = name
-        self.reg_count  = count
-        self.vec_length = length # Number of 32 bit words in a register.
-        self.reg_bits   = size
-        self.min_value  = -pow(2, self.reg_bits-1)
-        self.max_value  = pow(2, self.reg_bits-1) - 1
-        self.registers  = [[0x0 for e in range(self.vec_length)] for r in range(self.reg_count)] # list of lists of integers
+    def __init__(self, name, count, length=1, size=32):
+        self.name = name
+        self.reg_count = count
+        self.vec_length = length  # Number of 32 bit words in a register.
+        self.reg_bits = size
+        self.min_value = -pow(2, self.reg_bits - 1)
+        self.max_value = pow(2, self.reg_bits - 1) - 1
+        self.registers = [[0x0 for e in range(self.vec_length)] for r in
+                          range(self.reg_count)]  # list of lists of integers
 
     def Read(self, idx: int) -> list(int):
-        pass # Replace this line with your code.
+        pass  # Replace this line with your code.
 
     def Write(self, idx: int, val: list(int)):
-        pass # Replace this line with your code.
+        pass  # Replace this line with your code.
 
     def dump(self, iodir):
         opfilepath = os.path.abspath(os.path.join(iodir, self.name + ".txt"))
         try:
             with open(opfilepath, 'w') as opf:
-                row_format = "{:<13}"*self.vec_length
-                lines = [row_format.format(*[str(i) for i in range(self.vec_length)]) + "\n", '-'*(self.vec_length*13) + "\n"]
+                row_format = "{:<13}" * self.vec_length
+                lines = [row_format.format(*[str(i) for i in range(self.vec_length)]) + "\n",
+                         '-' * (self.vec_length * 13) + "\n"]
                 lines += [row_format.format(*[str(val) for val in data]) + "\n" for data in self.registers]
                 opf.writelines(lines)
             print(self.name, "- Dumped data into output file in path:", opfilepath)
         except:
             print(self.name, "- ERROR: Couldn't open output file in path:", opfilepath)
+
 
 class Core():
     def __init__(self, imem, sdmem, vdmem):
@@ -92,40 +101,42 @@ class Core():
 
         self.RFs = {"SRF": RegisterFile("SRF", 8),
                     "VRF": RegisterFile("VRF", 8, 64)}
-        
+
         self.PC = 0
         self.VLR = 64
         self.VMR = [1 for i in range(64)]
-        
+
     def run(self):
-        while(True):
-            break # Replace this line with your code.
+        while (True):
+            break  # Replace this line with your code.
 
     def dumpregs(self, iodir):
         for rf in self.RFs.values():
             rf.dump(iodir)
 
+
 if __name__ == "__main__":
-    #parse arguments for input file location
+    # parse arguments for input file location
     parser = argparse.ArgumentParser(description='Vector Core Performance Model')
-    parser.add_argument('--iodir', default="", type=str, help='Path to the folder containing the input files - instructions and data.')
+    parser.add_argument('--iodir', default="", type=str,
+                        help='Path to the folder containing the input files - instructions and data.')
     args = parser.parse_args()
 
     iodir = os.path.abspath(args.iodir)
     print("IO Directory:", iodir)
 
     # Parse IMEM
-    imem = IMEM(iodir)  
+    imem = IMEM(iodir)
     # Parse SMEM
-    sdmem = DMEM("SDMEM", iodir, 13) # 32 KB is 2^15 bytes = 2^13 K 32-bit words.
+    sdmem = DMEM("SDMEM", iodir, 13)  # 32 KB is 2^15 bytes = 2^13 K 32-bit words.
     # Parse VMEM
-    vdmem = DMEM("VDMEM", iodir, 17) # 512 KB is 2^19 bytes = 2^17 K 32-bit words. 
+    vdmem = DMEM("VDMEM", iodir, 17)  # 512 KB is 2^19 bytes = 2^17 K 32-bit words.
 
     # Create Vector Core
     vcore = Core(imem, sdmem, vdmem)
 
     # Run Core
-    vcore.run()   
+    vcore.run()
     vcore.dumpregs(iodir)
 
     sdmem.dump()

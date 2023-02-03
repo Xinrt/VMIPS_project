@@ -69,7 +69,7 @@ class RegisterFile(object):
 
     def Read(self, idx: int) -> list(int):
         """"For scalar register, notice that the return value of Read is a list"""
-        return self.registers[idx]
+        return copy.deepcopy(self.registers[idx])
 
     def Write(self, idx: int, val: list(int)):
         """"For scalar register, notice to pass val as a list"""

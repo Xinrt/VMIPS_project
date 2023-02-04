@@ -1,5 +1,6 @@
 import os
 import argparse
+import copy
 
 
 class IMEM(object):
@@ -75,10 +76,17 @@ class RegisterFile(object):
                           range(self.reg_count)]  # list of lists of integers
 
     def Read(self, idx: int) -> list(int):
-        pass  # Replace this line with your code.
+        """"For scalar register, notice that the return value of Read is a list"""
+        return copy.deepcopy(self.registers[idx])
 
     def Write(self, idx: int, val: list(int)):
-        pass  # Replace this line with your code.
+        """"For scalar register, notice to pass val as a list"""
+        assert isinstance(val, list), f"In RF write: val expected a list, but got {type(val).__name__}"
+        if self.vec_length == 1: # scalar RF
+            assert (len(val) == 1), f"In RF write: scalar val expected to have only one element, but got {len(val)}"
+
+        self.registers[idx] = copy.deepcopy(val)
+        return
 
     def dump(self, iodir):
         opfilepath = os.path.abspath(os.path.join(iodir, self.name + ".txt"))

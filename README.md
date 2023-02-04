@@ -6,7 +6,7 @@
 
 #### complete the VMIPS components
 
-- [ ] DMEM: Xinran
+- [x] DMEM: Xinran
   - Vector DMEM
   - Register DMEM
 - [ ] Register Files: Tianheng

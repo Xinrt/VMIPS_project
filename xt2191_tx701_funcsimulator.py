@@ -124,34 +124,34 @@ class Core():
         instrList = instrStr.split(' ')
         return instrList
 
-    def RF_READ(rf_str: str, idx: int, RFs: dict(RegisterFile)):
-        re_match = re.match("(\w{2})(\d)", rf_str)
-        if re_match[0] == "VR":
-            # read on Vector Reg
-            return RFs["VRF"].Read(idx)
-        elif re_match[0] == "SR":
-            # read on Scalar Reg
-            return RFs["SRF"].Read(idx)
+    # def RF_READ(rf_str: str, idx: int, RFs: dict(RegisterFile)):
+    #     re_match = re.match("(\w{2})(\d)", rf_str)
+    #     if re_match[0] == "VR":
+    #         # read on Vector Reg
+    #         return RFs["VRF"].Read(idx)
+    #     elif re_match[0] == "SR":
+    #         # read on Scalar Reg
+    #         return RFs["SRF"].Read(idx)
 
-    def RF_WRITE(rf_str: str, idx: int, val: list(int), RFs: dict(RegisterFile)):
-        re_match = re.match("(\w{2})(\d)", rf_str)
-        if re_match[0] == "VR":
-            # write on Vector Reg
-            RFs["VRF"].Write(idx, val)
-        elif re_match[0] == "SR":
-            # write on Scalar Reg
-            RFs["SRF"].Write(idx, val)
+    # def RF_WRITE(rf_str: str, idx: int, val: list(int), RFs: dict(RegisterFile)):
+    #     re_match = re.match("(\w{2})(\d)", rf_str)
+    #     if re_match[0] == "VR":
+    #         # write on Vector Reg
+    #         RFs["VRF"].Write(idx, val)
+    #     elif re_match[0] == "SR":
+    #         # write on Scalar Reg
+    #         RFs["SRF"].Write(idx, val)
 
     def run(self):
         while (True):
-            instrList = self.parseInstr(self.IMEM.Read(self.PC))
-            op = instrList[0]
+            instr = self.parseInstr(self.IMEM.Read(self.PC))
+            op = instr[0]
 
             # Vector Operations
             if re.match("(ADD|SUB|MUL|DIV)\w{2}", op):
-                rd = op[1]
-                rs1 = op[2]
-                rs2 = op[3]
+                rd = int(instr[1][2])
+                rs1 = int(instr[2][2])
+                rs2 = int(instr[3][2])
                 match op:
                     case "ADDVV":
                         pass
@@ -173,8 +173,8 @@ class Core():
                         print("Core run - ERROR: Vector Operations invalid operation ", op)
             # Vector Mask Register Operations
             elif re.match("(S\w{2}(VV|VS))|CVM|POP", op):
-                rs1 = op[1]
-                rs2 = op[2]
+                rs1 = int(instr[1][2])
+                rs2 = int(instr[2][2])
                 match op:
                     case "SEQVV":
                         pass
@@ -205,11 +205,11 @@ class Core():
             elif op == "CVM":
                 pass
             elif op == "POP":
-                rs = op[1]
+                rs = int(instr[1][2])
                 pass
             # Vector Length Register Operations
             elif op == "MTCL" or op == "MFCL":
-                rs = op[1]
+                rs = int(instr[1][2])
                 if op == "MTCL":
                     pass
                 elif op == "MFCL":
@@ -218,8 +218,8 @@ class Core():
                     print("Core run - ERROR: Vector Length Mask Operations invalid operation ", op)
             # Memory Access Operations 
             elif op == "LV" or op == "SV":
-                rs1 = op[1]
-                rs2 = op[2]
+                rs1 = int(instr[1][2])
+                rs2 = int(instr[2][2])
                 if op == "LV":
                     pass
                 elif op == "SV":
@@ -227,9 +227,9 @@ class Core():
                 else:
                     print("Core run - ERROR: Memory Access Operations LV/SV invalid operation ", op)
             elif re.match("((LV|SV)\w{1,2})", op):
-                rs1 = op[1]
-                rs2 = op[2]
-                rs3 = op[3]
+                rs1 = int(instr[1][2])
+                rs2 = int(instr[2][2])
+                rs3 = int(instr[3][2])
                 match op:
                     case "LVWS":
                         pass
@@ -242,9 +242,9 @@ class Core():
                     case _ :
                         print("Core run - ERROR: Memory Access Operations invalid operation ", op)
             elif op == "LS" or op == "SS":
-                rs1 = op[1]
-                rs2 = op[2]
-                imm = op[3]
+                rs1 = int(instr[1][2])
+                rs2 = int(instr[2][2])
+                imm = int(instr[3])
                 if op == "LS":
                     pass
                 elif op == "SS":
@@ -253,9 +253,9 @@ class Core():
                     print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
             # Scalar Operations
             elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR":
-                rd = op[1]
-                rs1 = op[2]
-                rs2 = op[3]
+                rd = int(instr[1][2])
+                rs1 = int(instr[2][2])
+                rs2 = int(instr[3][2])
                 match op:
                     case "ADD":
                         pass
@@ -271,9 +271,9 @@ class Core():
                         print("Core run - ERROR: Scalar Operations invalid operation ", op)
             # Control
             elif re.match("B\w{2}", op):
-                rs1 = op[1]
-                rs2 = op[2]
-                imm = op[3]
+                rs1 = int(instr[1][2])
+                rs2 = int(instr[2][2])
+                imm = int(instr[3])
                 match op:
                     case "BEQ":
                         pass  

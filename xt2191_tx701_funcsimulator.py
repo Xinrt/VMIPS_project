@@ -1,13 +1,15 @@
 import os
 import argparse
 import copy
+import string
+import re
 
 
 class IMEM(object):
     def __init__(self, iodir):
         self.size = pow(2, 16)  # Can hold a maximum of 2^16 instructions.
         self.filepath = os.path.abspath(os.path.join(iodir, "Code.asm"))
-        self.instructions = []
+        self.instructions:list[str] = []
 
         try:
             with open(self.filepath, 'r') as insf:
@@ -17,7 +19,7 @@ class IMEM(object):
         except:
             print("IMEM - ERROR: Couldn't open file in path:", self.filepath)
 
-    def Read(self, idx):  # Use this to read from IMEM.
+    def Read(self, idx: int):  # Use this to read from IMEM.
         if idx < self.size:
             return self.instructions[idx]
         else:
@@ -103,7 +105,7 @@ class RegisterFile(object):
 
 
 class Core():
-    def __init__(self, imem, sdmem, vdmem):
+    def __init__(self, imem:IMEM, sdmem, vdmem):
         self.IMEM = imem
         self.SDMEM = sdmem
         self.VDMEM = vdmem
@@ -111,13 +113,189 @@ class Core():
         self.RFs = {"SRF": RegisterFile("SRF", 8),
                     "VRF": RegisterFile("VRF", 8, 64)}
 
+        self.SRF = self.RFs["SRF"]
+        self.VRF = self.RFs["VRF"]
+
         self.PC = 0
         self.VLR = 64
         self.VMR = [1 for i in range(64)]
 
+    def parseInstr(instrStr: str):
+        instrList = instrStr.split(' ')
+        return instrList
+
+    def RF_READ(rf_str: str, idx: int, RFs: dict(RegisterFile)):
+        re_match = re.match("(\w{2})(\d)", rf_str)
+        if re_match[0] == "VR":
+            # read on Vector Reg
+            return RFs["VRF"].Read(idx)
+        elif re_match[0] == "SR":
+            # read on Scalar Reg
+            return RFs["SRF"].Read(idx)
+
+    def RF_WRITE(rf_str: str, idx: int, val: list(int), RFs: dict(RegisterFile)):
+        re_match = re.match("(\w{2})(\d)", rf_str)
+        if re_match[0] == "VR":
+            # write on Vector Reg
+            RFs["VRF"].Write(idx, val)
+        elif re_match[0] == "SR":
+            # write on Scalar Reg
+            RFs["SRF"].Write(idx, val)
+
     def run(self):
         while (True):
-            break  # Replace this line with your code.
+            instrList = self.parseInstr(self.IMEM.Read(self.PC))
+            op = instrList[0]
+
+            # Vector Operations
+            if re.match("(ADD|SUB|MUL|DIV)\w{2}", op):
+                rd = op[1]
+                rs1 = op[2]
+                rs2 = op[3]
+                match op:
+                    case "ADDVV":
+                        pass
+                    case "SUBVV":
+                        pass
+                    case "ADDVS":
+                        pass
+                    case "SUBVS":
+                        pass
+                    case "MULVV":
+                        pass
+                    case "DIVVV":
+                        pass
+                    case "MULVS":
+                        pass
+                    case "DIVVS":
+                        pass
+                    case _ :
+                        print("Core run - ERROR: Vector Operations invalid operation ", op)
+            # Vector Mask Register Operations
+            elif re.match("(S\w{2}(VV|VS))|CVM|POP", op):
+                rs1 = op[1]
+                rs2 = op[2]
+                match op:
+                    case "SEQVV":
+                        pass
+                    case "SNEVV":
+                        pass
+                    case "SGTVV":
+                        pass
+                    case "SLTVV":
+                        pass
+                    case "SGEVV":
+                        pass
+                    case "SLEVV":
+                        pass
+                    case "SEQVS":
+                        pass
+                    case "SNEVS":
+                        pass
+                    case "SGTVS":
+                        pass
+                    case "SLTVS":
+                        pass
+                    case "SGEVS":
+                        pass
+                    case "SLEVS":
+                        pass
+                    case _ :
+                        print("Core run - ERROR: Vector Mask Operations invalid operation ", op)
+            elif op == "CVM":
+                pass
+            elif op == "POP":
+                rs = op[1]
+                pass
+            # Vector Length Register Operations
+            elif op == "MTCL" or op == "MFCL":
+                rs = op[1]
+                if op == "MTCL":
+                    pass
+                elif op == "MFCL":
+                    pass
+                else:
+                    print("Core run - ERROR: Vector Length Mask Operations invalid operation ", op)
+            # Memory Access Operations 
+            elif op == "LV" or op == "SV":
+                rs1 = op[1]
+                rs2 = op[2]
+                if op == "LV":
+                    pass
+                elif op == "SV":
+                    pass
+                else:
+                    print("Core run - ERROR: Memory Access Operations LV/SV invalid operation ", op)
+            elif re.match("((LV|SV)\w{1,2})", op):
+                rs1 = op[1]
+                rs2 = op[2]
+                rs3 = op[3]
+                match op:
+                    case "LVWS":
+                        pass
+                    case "SVWS":
+                        pass
+                    case "LVI":
+                        pass
+                    case "SVI":
+                        pass
+                    case _ :
+                        print("Core run - ERROR: Memory Access Operations invalid operation ", op)
+            elif op == "LS" or op == "SS":
+                rs1 = op[1]
+                rs2 = op[2]
+                imm = op[3]
+                if op == "LS":
+                    pass
+                elif op == "SS":
+                    pass
+                else:
+                    print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
+            # Scalar Operations
+            elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR":
+                rd = op[1]
+                rs1 = op[2]
+                rs2 = op[3]
+                match op:
+                    case "ADD":
+                        pass
+                    case "SUB":
+                        pass
+                    case "AND":
+                        pass
+                    case "OR":
+                        pass
+                    case "XOR":
+                        pass
+                    case _ :
+                        print("Core run - ERROR: Scalar Operations invalid operation ", op)
+            # Control
+            elif re.match("B\w{2}", op):
+                rs1 = op[1]
+                rs2 = op[2]
+                imm = op[3]
+                match op:
+                    case "BEQ":
+                        pass  
+                    case "BNE":
+                        pass  
+                    case "BGT":
+                        pass  
+                    case "BLT":
+                        pass  
+                    case "BGE":
+                        pass  
+                    case "BLE":
+                        pass
+                    case _ :
+                        print("Core run - ERROR: Control Operations invalid operation ", op)
+            # Halt
+            elif op == "HALT":
+                return
+            else:
+                print("Core - ERROR: Operation invalid ", op)
+
+            self.PC = self.PC + 1
 
     def dumpregs(self, iodir):
         for rf in self.RFs.values():

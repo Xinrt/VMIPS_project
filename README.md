@@ -9,12 +9,12 @@
 - [x] DMEM: Xinran
   - Vector DMEM
   - Register DMEM
-- [ ] Register Files: Tianheng
+- [x] Register Files: Tianheng
   - Scalar Register File
   - Vector Register File
 - [x] Vector Mask Register(int list): 64 bits
 - [x] Vector Length Register(int): 32 bits
-
+- [ ] Add assert in DMEM and RF read, write on idx
 #### two functions
 
 - dot product function

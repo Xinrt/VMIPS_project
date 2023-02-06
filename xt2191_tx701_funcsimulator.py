@@ -86,7 +86,8 @@ class RegisterFile(object):
         assert isinstance(val, list), f"In RF write: val expected a list, but got {type(val).__name__}"
         if self.vec_length == 1: # scalar RF
             assert (len(val) == 1), f"In RF write: scalar val expected to have only one element, but got {len(val)}"
-
+        else: # vector RF
+            assert (len(val) == 64), f"In RF write: vector val expected to have exact 64 element, but got {len(val)}"
         self.registers[idx] = copy.deepcopy(val)
         return
 

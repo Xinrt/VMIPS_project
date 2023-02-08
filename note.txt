@@ -85,3 +85,25 @@ SGTVS
 SLTVS
 SGEVS
 SLEVS
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use of vector length register in vector operation
+VLR = 3
+VR1 = [1,1,1,1,1,1,1,1,1,1,1,1,1]
+temp= [0,0,0,0,0,0,0,0,0,0,0,0,0]
+VR2 = [2,2,2,2,2,2,2,2,2,2,2,2,2]
+VR3 = [2,2,2,2,2,2,2,2,2,2,2,2,2]
+
+temp = VR2 + VR3 for i in 3 = [4,4,4,0,0,0,0,0,0,0]
+correct_temp = [4,4,4,1,1,1,1,1,1,....,1]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use of deepcopy
+val = [1,1,1,1,1,1,1,1,1,1,1,1,1]
+VRF.write(3, val) # write without deepcopy: self.registers[3] = val
+val = [0,0,0,0,0,0,0,0,0,0]
+the fourth element of VRF will become [0,0,0,0,0,0,0,0,0,0]
+
+VRF.write(3, val) # write with deepcopy: self.registers[3] = copy.deepcopy(val): self.registers[3] = new list(int), for i in size(val), self.registers[3][i] = val[i]
+val = [0,0,0,0,0,0,0,0,0,0]
+the fourth element of VRF will still be [1,1,1,1,1,1,1,1,1,1,1,1,1]

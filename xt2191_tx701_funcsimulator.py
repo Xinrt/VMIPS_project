@@ -192,31 +192,92 @@ class Core():
             elif re.match("(S\w{2}(VV|VS))|CVM|POP", op):
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
+                vr1 = self.VRF.Read(rs1)
                 match op:
                     case "SEQVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] == vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SNEVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] != vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGTVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] > vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLTVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] < vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGEVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] >= vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLEVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] <= vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SEQVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] == scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SNEVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] != scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGTVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] > scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLTVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] < scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGEVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] >= scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLEVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] <= scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case _ :
                         print("Core run - ERROR: Vector Mask Operations invalid operation ", op)
             elif op == "CVM":

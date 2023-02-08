@@ -165,10 +165,9 @@ class Core():
                 rd = int(instr[1][2])
                 rs1 = int(instr[2][2])
                 rs2 = int(instr[3][2])
-                # make sure the length of input vector register is 64 
-                temp_list = [0x0 for i in range(64)]
+
                 # copy the value of rd into temporary list, remain the length=64
-                temp_list[0:len(self.RFs["VRF"].Read(rd))-1] = copy.deepcopy(self.RFs["VRF"].Read(rd))
+                temp_list = self.RFs["VRF"].Read(rd)
                 match op:
                     case "ADDVV":
                         for i in range(self.VLR):

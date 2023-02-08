@@ -100,10 +100,6 @@ class RegisterFile(object):
             assert (len(val) == 1), f"In RF write: scalar val expected to have only one element, but got {len(val)}"
         else: # vector RF
             assert (len(val) == 64), f"In RF write: vector val expected to have exact 64 element, but got {len(val)}"
-
-        for (i, ele) in enumerate(val):
-            assert (self.min_value <= ele and ele <= self.max_value), f"In RF write: val[{i}] must between {self.min_value} and {self.max_value}, but got {ele}"
-
         self.registers[idx] = copy.deepcopy(val)
         return
 
@@ -169,23 +165,59 @@ class Core():
                 rd = int(instr[1][2])
                 rs1 = int(instr[2][2])
                 rs2 = int(instr[3][2])
+                # make sure the length of input vector register is 64 
+                temp_list = [0x0 for i in range(64)]
+                # copy the value of rd into temporary list, remain the length=64
+                temp_list[0:len(self.RFs["VRF"].Read(rd))-1] = copy.deepcopy(self.RFs["VRF"].Read(rd))
                 match op:
                     case "ADDVV":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]+self.RFs["VRF"].Read(rs2)[i]
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case "SUBVV":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]-self.RFs["VRF"].Read(rs2)[i]
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case "ADDVS":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]+self.RFs["SRF"].Read(rs2)
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case "SUBVS":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]-self.RFs["SRF"].Read(rs2)
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case "MULVV":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]*self.RFs["VRF"].Read(rs2)[i]
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case "DIVVV":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]//self.RFs["VRF"].Read(rs2)[i]
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case "MULVS":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]*self.RFs["SRF"].Read(rs2)
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case "DIVVS":
-                        pass
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]//self.RFs["SRF"].Read(rs2)
+                        self.RFs["VRF"].Write(rd, temp_list)
+                        # pass
                     case _ :
                         print("Core run - ERROR: Vector Operations invalid operation ", op)
             # Vector Mask Register Operations

@@ -49,12 +49,20 @@ class DMEM(object):
 
     def Read(self, idx: int) -> int:  # Use this to read from DMEM.
         """"For vector data memory, notice that the return value of Read is an int"""
+        assert isinstance(idx, int), f"In DMEM read: idx expected an int, but got {type(idx).__name__}"
+        assert (0 <= idx and idx < self.size), f"In DMEM read: idx must smaller than {self.size}, but got {idx}"
+
         return self.data[idx]
 
     def Write(self, idx: int, val: int):  # Use this to write into DMEM.
         """"For vector data memory, notice to pass val as an int"""
-        assert isinstance(val, int), f"In Dmem write: val expected an int, but got {type(val).__name__}"
+        assert isinstance(idx, int), f"In DMEM write: idx expected an int, but got {type(idx).__name__}"
+        assert isinstance(val, int), f"In DMEM write: val expected an int, but got {type(val).__name__}"
+        assert (0 <= idx and idx < self.size), f"In DMEM write: idx must smaller than {self.size}, but got {idx}"
+        assert (self.min_value <= val and val <= self.max_value), f"In DMEM write: val must between {self.min_value} and {self.max_value}, but got {val}"
+
         self.data[idx] = val
+        return
 
     def dump(self):
         try:
@@ -79,15 +87,23 @@ class RegisterFile(object):
 
     def Read(self, idx: int) -> list(int):
         """"For scalar register, notice that the return value of Read is a list"""
+        assert isinstance(idx, int), f"In RF read: idx expected an int, but got {type(idx).__name__}"
+        assert (0 <= idx and idx < self.reg_count), f"In RF read: idx must smaller than {self.reg_count}, but got {idx}"
+
         return copy.deepcopy(self.registers[idx])
 
     def Write(self, idx: int, val: list(int)):
         """"For scalar register, notice to pass val as a list"""
         assert isinstance(val, list), f"In RF write: val expected a list, but got {type(val).__name__}"
+        assert (0 <= idx and idx < self.reg_count), f"In RF write: idx must smaller than {self.reg_count}, but got {idx}"
         if self.vec_length == 1: # scalar RF
             assert (len(val) == 1), f"In RF write: scalar val expected to have only one element, but got {len(val)}"
         else: # vector RF
             assert (len(val) == 64), f"In RF write: vector val expected to have exact 64 element, but got {len(val)}"
+
+        for (i, ele) in enumerate(val):
+            assert (self.min_value <= ele and ele <= self.max_value), f"In RF write: val[{i}] must between {self.min_value} and {self.max_value}, but got {ele}"
+
         self.registers[idx] = copy.deepcopy(val)
         return
 

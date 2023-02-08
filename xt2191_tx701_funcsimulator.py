@@ -13,7 +13,7 @@ class IMEM(object):
 
         try:
             with open(self.filepath, 'r') as insf:
-                self.instructions = [ins.strip() for ins in insf.readlines()]
+                self.instructions = [ins.split('#')[0].strip() for ins in insf.readlines() if not (ins.startswith('#') or ins.strip() == '')]
             print("IMEM - Instructions loaded from file:", self.filepath)
             # print("IMEM - Instructions:", self.instructions)
         except:

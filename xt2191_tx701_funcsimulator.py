@@ -297,19 +297,26 @@ class Core():
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 imm = int(instr[3])
+                assert (-(2 ** 20) <= imm and imm <= (2 ** 20)), f"In Control: imm must between {-(2 ** 20)} and {(2 ** 20)}, but got {imm}"
                 match op:
                     case "BEQ":
-                        pass  
+                        if self.SRF.Read(rs1)[0] == self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BNE":
-                        pass  
+                        if self.SRF.Read(rs1)[0] != self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BGT":
-                        pass  
+                        if self.SRF.Read(rs1)[0] > self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BLT":
-                        pass  
+                        if self.SRF.Read(rs1)[0] < self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BGE":
-                        pass  
+                        if self.SRF.Read(rs1)[0] >= self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1  
                     case "BLE":
-                        pass
+                        if self.SRF.Read(rs1)[0] <= self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case _ :
                         print("Core run - ERROR: Control Operations invalid operation ", op)
             # Halt

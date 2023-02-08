@@ -13,7 +13,7 @@ class IMEM(object):
 
         try:
             with open(self.filepath, 'r') as insf:
-                self.instructions = [ins.strip() for ins in insf.readlines()]
+                self.instructions = [ins.split('#')[0].strip() for ins in insf.readlines() if not (ins.startswith('#') or ins.strip() == '')]
             print("IMEM - Instructions loaded from file:", self.filepath)
             # print("IMEM - Instructions:", self.instructions)
         except:
@@ -49,12 +49,20 @@ class DMEM(object):
 
     def Read(self, idx: int) -> int:  # Use this to read from DMEM.
         """"For vector data memory, notice that the return value of Read is an int"""
+        assert isinstance(idx, int), f"In DMEM read: idx expected an int, but got {type(idx).__name__}"
+        assert (0 <= idx and idx < self.size), f"In DMEM read: idx must smaller than {self.size}, but got {idx}"
+
         return self.data[idx]
 
     def Write(self, idx: int, val: int):  # Use this to write into DMEM.
         """"For vector data memory, notice to pass val as an int"""
-        assert isinstance(val, int), f"In Dmem write: val expected an int, but got {type(val).__name__}"
+        assert isinstance(idx, int), f"In DMEM write: idx expected an int, but got {type(idx).__name__}"
+        assert isinstance(val, int), f"In DMEM write: val expected an int, but got {type(val).__name__}"
+        assert (0 <= idx and idx < self.size), f"In DMEM write: idx must smaller than {self.size}, but got {idx}"
+        assert (self.min_value <= val and val <= self.max_value), f"In DMEM write: val must between {self.min_value} and {self.max_value}, but got {val}"
+
         self.data[idx] = val
+        return
 
     def dump(self):
         try:
@@ -79,11 +87,15 @@ class RegisterFile(object):
 
     def Read(self, idx: int) -> list(int):
         """"For scalar register, notice that the return value of Read is a list"""
+        assert isinstance(idx, int), f"In RF read: idx expected an int, but got {type(idx).__name__}"
+        assert (0 <= idx and idx < self.reg_count), f"In RF read: idx must smaller than {self.reg_count}, but got {idx}"
+
         return copy.deepcopy(self.registers[idx])
 
     def Write(self, idx: int, val: list(int)):
         """"For scalar register, notice to pass val as a list"""
         assert isinstance(val, list), f"In RF write: val expected a list, but got {type(val).__name__}"
+        assert (0 <= idx and idx < self.reg_count), f"In RF write: idx must smaller than {self.reg_count}, but got {idx}"
         if self.vec_length == 1: # scalar RF
             assert (len(val) == 1), f"In RF write: scalar val expected to have only one element, but got {len(val)}"
         else: # vector RF
@@ -212,31 +224,92 @@ class Core():
             elif re.match("(S\w{2}(VV|VS))|CVM|POP", op):
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
+                vr1 = self.VRF.Read(rs1)
                 match op:
                     case "SEQVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] == vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SNEVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] != vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGTVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] > vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLTVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] < vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGEVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] >= vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLEVV":
-                        pass
+                        vr2 = self.VRF.Read(rs2)
+                        for idx in range(64):
+                            if vr1[idx] <= vr2[idx]:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SEQVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)[0]
+                        for idx in range(64):
+                            if vr1[idx] == scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SNEVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)[0]
+                        for idx in range(64):
+                            if vr1[idx] != scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGTVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)[0]
+                        for idx in range(64):
+                            if vr1[idx] > scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLTVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)[0]
+                        for idx in range(64):
+                            if vr1[idx] < scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SGEVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)[0]
+                        for idx in range(64):
+                            if vr1[idx] >= scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case "SLEVS":
-                        pass
+                        scalar = self.SRF.Read(rs2)[0]
+                        for idx in range(64):
+                            if vr1[idx] <= scalar:
+                                self.VMR[idx] = 1
+                            else:
+                                self.VMR[idx] = 0
                     case _ :
                         print("Core run - ERROR: Vector Mask Operations invalid operation ", op)
             elif op == "CVM":
@@ -248,9 +321,11 @@ class Core():
             elif op == "MTCL" or op == "MFCL":
                 rs = int(instr[1][2])
                 if op == "MTCL":
-                    pass
+                    sr = self.SRF.Read(rs)[0]
+                    assert (0 <= sr and sr < 64), f"In MTCL: val must between 0 and 63, but got {sr}"
+                    self.VLR = sr
                 elif op == "MFCL":
-                    pass
+                    self.SRF.Write([self.VLR])
                 else:
                     print("Core run - ERROR: Vector Length Mask Operations invalid operation ", op)
             # Memory Access Operations 
@@ -289,21 +364,27 @@ class Core():
                 else:
                     print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
             # Scalar Operations
-            elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR":
+            elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR" or op == "SLL" or op == "SRL" or op == "SRA":
                 rd = int(instr[1][2])
                 rs1 = int(instr[2][2])
                 rs2 = int(instr[3][2])
                 match op:
                     case "ADD":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] + self.SRF.Read(rs2)[0]])
                     case "SUB":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] - self.SRF.Read(rs2)[0]])
                     case "AND":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] & self.SRF.Read(rs2)[0]])
                     case "OR":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] | self.SRF.Read(rs2)[0]])
                     case "XOR":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] ^ self.SRF.Read(rs2)[0]])
+                    case "SLL":
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] << self.SRF.Read(rs2)[0]])
+                    case "SRL":
+                        self.SRF.Write(rd, [(self.SRF.Read(rs1)[0] % 0x100000000) >> self.SRF.Read(rs2)[0]])
+                    case "SRA":
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] >> self.SRF.Read(rs2)[0]])
                     case _ :
                         print("Core run - ERROR: Scalar Operations invalid operation ", op)
             # Control
@@ -311,19 +392,26 @@ class Core():
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 imm = int(instr[3])
+                assert (-(2 ** 20) <= imm and imm <= (2 ** 20)), f"In Control: imm must between {-(2 ** 20)} and {(2 ** 20)}, but got {imm}"
                 match op:
                     case "BEQ":
-                        pass  
+                        if self.SRF.Read(rs1)[0] == self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BNE":
-                        pass  
+                        if self.SRF.Read(rs1)[0] != self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BGT":
-                        pass  
+                        if self.SRF.Read(rs1)[0] > self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BLT":
-                        pass  
+                        if self.SRF.Read(rs1)[0] < self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case "BGE":
-                        pass  
+                        if self.SRF.Read(rs1)[0] >= self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1  
                     case "BLE":
-                        pass
+                        if self.SRF.Read(rs1)[0] <= self.SRF.Read(rs2)[0]:
+                            self.PC += imm - 1
                     case _ :
                         print("Core run - ERROR: Control Operations invalid operation ", op)
             # Halt

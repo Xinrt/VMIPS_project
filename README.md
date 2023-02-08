@@ -14,7 +14,15 @@
   - Vector Register File
 - [x] Vector Mask Register(int list): 64 bits
 - [x] Vector Length Register(int): 32 bits
-- [ ] Add assert in DMEM and RF read, write on idx
+- [x] Add assert in DMEM and RF read, write on idx and val.
+  - [x] DMEM
+    - [x] type
+    - [x] range
+    - [x] val max min
+  - [x] RF
+    - [x] type
+    - [x] range
+    - [x] val max min
 #### two functions
 
 - dot product function

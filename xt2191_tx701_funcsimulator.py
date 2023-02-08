@@ -269,21 +269,27 @@ class Core():
                 else:
                     print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
             # Scalar Operations
-            elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR":
+            elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR" or op == "SLL" or op == "SRL" or op == "SRA":
                 rd = int(instr[1][2])
                 rs1 = int(instr[2][2])
                 rs2 = int(instr[3][2])
                 match op:
                     case "ADD":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] + self.SRF.Read(rs2)[0]])
                     case "SUB":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] - self.SRF.Read(rs2)[0]])
                     case "AND":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] & self.SRF.Read(rs2)[0]])
                     case "OR":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] | self.SRF.Read(rs2)[0]])
                     case "XOR":
-                        pass
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] ^ self.SRF.Read(rs2)[0]])
+                    case "SLL":
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] << self.SRF.Read(rs2)[0]])
+                    case "SRL":
+                        self.SRF.Write(rd, [(self.SRF.Read(rs1)[0] % 0x100000000) >> self.SRF.Read(rs2)[0]])
+                    case "SRA":
+                        self.SRF.Write(rd, [self.SRF.Read(rs1)[0] >> self.SRF.Read(rs2)[0]])
                     case _ :
                         print("Core run - ERROR: Scalar Operations invalid operation ", op)
             # Control

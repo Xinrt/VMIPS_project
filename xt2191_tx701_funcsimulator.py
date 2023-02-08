@@ -237,42 +237,42 @@ class Core():
                             else:
                                 self.VMR[idx] = 0
                     case "SEQVS":
-                        scalar = self.SRF.Read(rs2)
+                        scalar = self.SRF.Read(rs2)[0]
                         for idx in range(64):
                             if vr1[idx] == scalar:
                                 self.VMR[idx] = 1
                             else:
                                 self.VMR[idx] = 0
                     case "SNEVS":
-                        scalar = self.SRF.Read(rs2)
+                        scalar = self.SRF.Read(rs2)[0]
                         for idx in range(64):
                             if vr1[idx] != scalar:
                                 self.VMR[idx] = 1
                             else:
                                 self.VMR[idx] = 0
                     case "SGTVS":
-                        scalar = self.SRF.Read(rs2)
+                        scalar = self.SRF.Read(rs2)[0]
                         for idx in range(64):
                             if vr1[idx] > scalar:
                                 self.VMR[idx] = 1
                             else:
                                 self.VMR[idx] = 0
                     case "SLTVS":
-                        scalar = self.SRF.Read(rs2)
+                        scalar = self.SRF.Read(rs2)[0]
                         for idx in range(64):
                             if vr1[idx] < scalar:
                                 self.VMR[idx] = 1
                             else:
                                 self.VMR[idx] = 0
                     case "SGEVS":
-                        scalar = self.SRF.Read(rs2)
+                        scalar = self.SRF.Read(rs2)[0]
                         for idx in range(64):
                             if vr1[idx] >= scalar:
                                 self.VMR[idx] = 1
                             else:
                                 self.VMR[idx] = 0
                     case "SLEVS":
-                        scalar = self.SRF.Read(rs2)
+                        scalar = self.SRF.Read(rs2)[0]
                         for idx in range(64):
                             if vr1[idx] <= scalar:
                                 self.VMR[idx] = 1
@@ -289,9 +289,11 @@ class Core():
             elif op == "MTCL" or op == "MFCL":
                 rs = int(instr[1][2])
                 if op == "MTCL":
-                    pass
+                    sr = self.SRF.Read(rs)[0]
+                    assert (0 <= sr and sr < 64), f"In MTCL: val must between 0 and 63, but got {sr}"
+                    self.VLR = sr
                 elif op == "MFCL":
-                    pass
+                    self.SRF.Write([self.VLR])
                 else:
                     print("Core run - ERROR: Vector Length Mask Operations invalid operation ", op)
             # Memory Access Operations 

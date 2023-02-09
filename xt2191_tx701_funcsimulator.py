@@ -167,55 +167,55 @@ class Core():
                 rs2 = int(instr[3][2])
 
                 # copy the value of rd into temporary list, remain the length=64
-                temp_list = self.RFs["VRF"].Read(rd)
+                temp_list = self.VRF.Read(rd)
                 match op:
                     case "ADDVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]+self.RFs["VRF"].Read(rs2)[i]
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]+self.VRF.Read(rs2)[i]
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case "SUBVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]-self.RFs["VRF"].Read(rs2)[i]
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]-self.VRF.Read(rs2)[i]
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case "ADDVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]+self.RFs["SRF"].Read(rs2)
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]+self.SRF.Read(rs2)
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case "SUBVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]-self.RFs["SRF"].Read(rs2)
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]-self.SRF.Read(rs2)
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case "MULVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]*self.RFs["VRF"].Read(rs2)[i]
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]*self.VRF.Read(rs2)[i]
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case "DIVVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]//self.RFs["VRF"].Read(rs2)[i]
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]//self.VRF.Read(rs2)[i]
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case "MULVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]*self.RFs["SRF"].Read(rs2)
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]*self.SRF.Read(rs2)
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case "DIVVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.RFs["VRF"].Read(rs1)[i]//self.RFs["SRF"].Read(rs2)
-                        self.RFs["VRF"].Write(rd, temp_list)
+                                temp_list[i] = self.VRF.Read(rs1)[i]//self.SRF.Read(rs2)
+                        self.VRF.Write(rd, temp_list)
                         # pass
                     case _ :
                         print("Core run - ERROR: Vector Operations invalid operation ", op)
@@ -331,35 +331,67 @@ class Core():
             elif op == "LV" or op == "SV":
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
+                address0 = self.SRF.Read(rs2)
+                
                 if op == "LV":
-                    pass
+                    temp_list = [0x0 for i in range(64)]
+                    # sdmem: 2^13, vdmem:2^17 
+                    # assert (0 <= address and address < pow(2, 13)), f"In LV: index must between 0 and 2^13, but got {address}"
+                    for i in range(64):
+                        # starting address: 
+                        temp_list[i] = self.VDMEM.Read(address0+i)
+                    self.VRF.Write(rs1, temp_list)
+                    # pass
                 elif op == "SV":
-                    pass
+                    for i in range(64):
+                        self.VDMEM.Write(address0+i, self.VRF.Read(rs1)[i])
+                    # pass
                 else:
                     print("Core run - ERROR: Memory Access Operations LV/SV invalid operation ", op)
             elif re.match("((LV|SV)\w{1,2})", op):
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 rs3 = int(instr[3][2])
+                address0 = self.SRF.Read(rs2)
+                temp_list = [0x0 for i in range(64)]
                 match op:
                     case "LVWS":
-                        pass
+                        stride = self.SRF.Read(rs3)
+                        for i in range(64):
+                            temp_list[i] = self.VDMEM.Read(address0+i*stride)
+                        self.VRF.Write(rs1, temp_list)
+                        # pass
                     case "SVWS":
-                        pass
+                        stride = self.SRF.Read(rs3)
+                        for i in range(64):
+                            self.VDMEM.Write(address0+i*stride, self.VRF.Read(rs1)[i])
+                        # pass
                     case "LVI":
-                        pass
+                        offset = self.VRF.Read(rs3)
+                        for i in range(64):
+                            temp_list[i] = self.VDMEM.Read(address0+offset[i])
+                        self.VRF.Write(rs1, temp_list)
+                        # pass
                     case "SVI":
-                        pass
+                        offset = self.VRF.Read(rs3)
+                        for i in range(64):
+                            self.VDMEM.Write(address0+offset[i], self.VRF.Read(rs1)[i])
+                        # pass
                     case _ :
                         print("Core run - ERROR: Memory Access Operations invalid operation ", op)
             elif op == "LS" or op == "SS":
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 imm = int(instr[3])
+                address0 = self.SRF.Read(rs2)
                 if op == "LS":
-                    pass
+                    value = self.SDMEM.Read(address0+imm)
+                    self.SRF.Write(rs1, value)
+                    # pass
                 elif op == "SS":
-                    pass
+                    value = self.SRF.Read(rs1)
+                    self.SDMEM.Write(address0+imm, value)
+                    # pass
                 else:
                     print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
             # Scalar Operations

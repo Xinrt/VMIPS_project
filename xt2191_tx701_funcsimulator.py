@@ -312,10 +312,10 @@ class Core():
                     case _ :
                         print("Core run - ERROR: Vector Mask Operations invalid operation ", op)
             elif op == "CVM":
-                pass
+                self.VMR = [1 for i in range(64)]
             elif op == "POP":
                 rs = int(instr[1][2])
-                pass
+                self.SRF.Write(rs, [self.VMR.count(1)])
             # Vector Length Register Operations
             elif op == "MTCL" or op == "MFCL":
                 rs = int(instr[1][2])

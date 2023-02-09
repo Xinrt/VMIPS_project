@@ -1,5 +1,8 @@
 # VMIPS_project
-
+## **Questions**
+- Q: Will S__VV S__VS also set the respective bit to 0?
+- Q: What happends to the bits in VMR if we increase/decrease the VLR. Will they be the default value? Or will they remain what it is?
+- Q: Does VMR affect Memory Access operations?
 ## Part 1 - Functional Simulator
 
 ### Task
@@ -23,6 +26,7 @@
     - [x] type
     - [x] range
     - [x] val max min
+
 #### two functions
 
 - dot product function

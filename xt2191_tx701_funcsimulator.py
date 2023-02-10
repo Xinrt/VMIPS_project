@@ -85,14 +85,14 @@ class RegisterFile(object):
         self.registers = [[0x0 for e in range(self.vec_length)] for r in
                           range(self.reg_count)]  # list of lists of integers
 
-    def Read(self, idx: int) -> list(int):
+    def Read(self, idx: int):
         """"For scalar register, notice that the return value of Read is a list"""
         assert isinstance(idx, int), f"In RF read: idx expected an int, but got {type(idx).__name__}"
         assert (0 <= idx and idx < self.reg_count), f"In RF read: idx must smaller than {self.reg_count}, but got {idx}"
 
         return copy.deepcopy(self.registers[idx])
 
-    def Write(self, idx: int, val: list(int)):
+    def Write(self, idx: int, val):
         """"For scalar register, notice to pass val as a list"""
         assert isinstance(val, list), f"In RF write: val expected a list, but got {type(val).__name__}"
         assert (0 <= idx and idx < self.reg_count), f"In RF write: idx must smaller than {self.reg_count}, but got {idx}"
@@ -133,7 +133,7 @@ class Core():
         self.VLR = 64
         self.VMR = [1 for i in range(64)]
 
-    def parseInstr(instrStr: str):
+    def parseInstr(self, instrStr: str):
         instrList = instrStr.split(' ')
         return instrList
 
@@ -157,6 +157,7 @@ class Core():
 
     def run(self):
         while (True):
+            print("PC: ", self.PC)
             instr = self.parseInstr(self.IMEM.Read(self.PC))
             op = instr[0]
 
@@ -184,13 +185,13 @@ class Core():
                     case "ADDVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.VRF.Read(rs1)[i]+self.SRF.Read(rs2)
+                                temp_list[i] = self.VRF.Read(rs1)[i]+self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
                         # pass
                     case "SUBVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.VRF.Read(rs1)[i]-self.SRF.Read(rs2)
+                                temp_list[i] = self.VRF.Read(rs1)[i]-self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
                         # pass
                     case "MULVV":
@@ -202,25 +203,29 @@ class Core():
                     case "DIVVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
+                                # print("In DIVVV: VMR: ", self.VMR)
+                                # print("In DIVVV: self.VRF.Read(rs2): ", self.VRF.Read(rs2))
+                                assert (self.VRF.Read(rs2)[i] != 0), f"In DIVVV: self.VRF.Read({rs2})[{i}] = {self.VRF.Read(rs2)[i]}"
                                 temp_list[i] = self.VRF.Read(rs1)[i]//self.VRF.Read(rs2)[i]
                         self.VRF.Write(rd, temp_list)
                         # pass
                     case "MULVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.VRF.Read(rs1)[i]*self.SRF.Read(rs2)
+                                temp_list[i] = self.VRF.Read(rs1)[i]*self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
                         # pass
                     case "DIVVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                temp_list[i] = self.VRF.Read(rs1)[i]//self.SRF.Read(rs2)
+                                assert (self.SRF.Read(rs2)[0] != 0), f"In DIVVS: self.SRF.Read({rs2})[0] = {self.SRF.Read(rs2)[0]}"
+                                temp_list[i] = self.VRF.Read(rs1)[i]//self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
                         # pass
                     case _ :
                         print("Core run - ERROR: Vector Operations invalid operation ", op)
             # Vector Mask Register Operations
-            elif re.match("(S\w{2}(VV|VS))|CVM|POP", op):
+            elif re.match("(S\w{2}(VV|VS))", op):
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 vr1 = self.VRF.Read(rs1)
@@ -321,10 +326,10 @@ class Core():
                 rs = int(instr[1][2])
                 if op == "MTCL":
                     sr = self.SRF.Read(rs)[0]
-                    assert (0 <= sr and sr < 64), f"In MTCL: val must between 0 and 63, but got {sr}"
+                    assert (0 <= sr and sr <= 64), f"In MTCL: val must between 0 and 64, but got {sr}"
                     self.VLR = sr
                 elif op == "MFCL":
-                    self.SRF.Write([self.VLR])
+                    self.SRF.Write(rs, [self.VLR])
                 else:
                     print("Core run - ERROR: Vector Length Mask Operations invalid operation ", op)
             # Memory Access Operations 

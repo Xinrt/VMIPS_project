@@ -331,20 +331,22 @@ class Core():
             elif op == "LV" or op == "SV":
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
-                address0 = self.SRF.Read(rs2)
+                address0 = self.SRF.Read(rs2)[0]
                 
                 if op == "LV":
                     temp_list = [0x0 for i in range(64)]
                     # sdmem: 2^13, vdmem:2^17 
                     # assert (0 <= address and address < pow(2, 13)), f"In LV: index must between 0 and 2^13, but got {address}"
-                    for i in range(64):
+                    for i in range(self.VLR):
                         # starting address: 
-                        temp_list[i] = self.VDMEM.Read(address0+i)
+                        if self.VMR[i] == 1:
+                            temp_list[i] = self.VDMEM.Read(address0+i)
                     self.VRF.Write(rs1, temp_list)
                     # pass
                 elif op == "SV":
-                    for i in range(64):
-                        self.VDMEM.Write(address0+i, self.VRF.Read(rs1)[i])
+                    for i in range(self.VLR):
+                        if self.VMR[i] == 1:
+                            self.VDMEM.Write(address0+i, self.VRF.Read(rs1)[i])
                     # pass
                 else:
                     print("Core run - ERROR: Memory Access Operations LV/SV invalid operation ", op)
@@ -352,30 +354,34 @@ class Core():
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 rs3 = int(instr[3][2])
-                address0 = self.SRF.Read(rs2)
+                address0 = self.SRF.Read(rs2)[0]
                 temp_list = [0x0 for i in range(64)]
                 match op:
                     case "LVWS":
-                        stride = self.SRF.Read(rs3)
-                        for i in range(64):
-                            temp_list[i] = self.VDMEM.Read(address0+i*stride)
+                        stride = self.SRF.Read(rs3)[0]
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.VDMEM.Read(address0+i*stride)
                         self.VRF.Write(rs1, temp_list)
                         # pass
                     case "SVWS":
-                        stride = self.SRF.Read(rs3)
-                        for i in range(64):
-                            self.VDMEM.Write(address0+i*stride, self.VRF.Read(rs1)[i])
+                        stride = self.SRF.Read(rs3)[0]
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                self.VDMEM.Write(address0+i*stride, self.VRF.Read(rs1)[i])
                         # pass
                     case "LVI":
                         offset = self.VRF.Read(rs3)
-                        for i in range(64):
-                            temp_list[i] = self.VDMEM.Read(address0+offset[i])
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                temp_list[i] = self.VDMEM.Read(address0+offset[i])
                         self.VRF.Write(rs1, temp_list)
                         # pass
                     case "SVI":
                         offset = self.VRF.Read(rs3)
-                        for i in range(64):
-                            self.VDMEM.Write(address0+offset[i], self.VRF.Read(rs1)[i])
+                        for i in range(self.VLR):
+                            if self.VMR[i] == 1:
+                                self.VDMEM.Write(address0+offset[i], self.VRF.Read(rs1)[i])
                         # pass
                     case _ :
                         print("Core run - ERROR: Memory Access Operations invalid operation ", op)
@@ -383,13 +389,15 @@ class Core():
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 imm = int(instr[3])
-                address0 = self.SRF.Read(rs2)
+                address0 = self.SRF.Read(rs2)[0]
+                
                 if op == "LS":
-                    value = self.SDMEM.Read(address0+imm)
-                    self.SRF.Write(rs1, value)
+                    temp_list = [0x0]
+                    temp_list[0] = self.SDMEM.Read(address0+imm)
+                    self.SRF.Write(rs1, temp_list)
                     # pass
                 elif op == "SS":
-                    value = self.SRF.Read(rs1)
+                    value = self.SRF.Read(rs1)[0]
                     self.SDMEM.Write(address0+imm, value)
                     # pass
                 else:

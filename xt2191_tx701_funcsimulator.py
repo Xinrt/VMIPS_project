@@ -9,7 +9,7 @@ class IMEM(object):
     def __init__(self, iodir):
         self.size = pow(2, 16)  # Can hold a maximum of 2^16 instructions.
         self.filepath = os.path.abspath(os.path.join(iodir, "Code.asm"))
-        self.instructions:list[str] = []
+        self.instructions = []
 
         try:
             with open(self.filepath, 'r') as insf:

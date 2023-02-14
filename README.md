@@ -41,11 +41,7 @@
 
 
 
-#### instructions
-- 22 instructions
-  - parsing
-  - execute
-
+#### Instructions Tests
 - 24 instructions tests
   - test1:
     1 5 7 9 11 13 15 17 19 21

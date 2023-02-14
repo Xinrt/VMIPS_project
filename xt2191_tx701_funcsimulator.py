@@ -1,7 +1,6 @@
 import os
 import argparse
 import copy
-import string
 import re
 
 
@@ -158,6 +157,7 @@ class Core():
     def run(self):
         while (True):
             print("PC: ", self.PC)
+            print("VMR: ", self.VMR)
             instr = self.parseInstr(self.IMEM.Read(self.PC))
             op = instr[0]
 

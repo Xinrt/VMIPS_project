@@ -49,8 +49,12 @@
 - 24 instructions tests
   - test1:
     1 5 7 9 11 13 15 17 19 21
+  - test2:
+    2 4 6 8 10 12 14 18 20 22 24
   - test3:
     3
+  - test4:
+    16
   - test5:
     23
 

@@ -46,7 +46,13 @@
   - parsing
   - execute
 
-
+- 24 instructions tests
+  - test1
+    1 5 7 9 11 13 15 17 19 21
+  - test3
+    3
+  - test5
+    23
 
 
 

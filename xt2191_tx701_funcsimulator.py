@@ -203,8 +203,6 @@ class Core():
                     case "DIVVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
-                                # print("In DIVVV: VMR: ", self.VMR)
-                                # print("In DIVVV: self.VRF.Read(rs2): ", self.VRF.Read(rs2))
                                 assert (self.VRF.Read(rs2)[i] != 0), f"In DIVVV: self.VRF.Read({rs2})[{i}] = {self.VRF.Read(rs2)[i]}"
                                 temp_list[i] = self.VRF.Read(rs1)[i]//self.VRF.Read(rs2)[i]
                         self.VRF.Write(rd, temp_list)

@@ -1,8 +1,10 @@
+# Author: Xinran Tang(xt2191), Tianheng Xiang(tx701)
+# This code reqires python version >= 3.11.0
+
 import os
 import argparse
 import copy
 import re
-
 
 class IMEM(object):
     def __init__(self, iodir):
@@ -136,24 +138,6 @@ class Core():
         instrList = instrStr.split(' ')
         return instrList
 
-    # def RF_READ(rf_str: str, idx: int, RFs: dict(RegisterFile)):
-    #     re_match = re.match("(\w{2})(\d)", rf_str)
-    #     if re_match[0] == "VR":
-    #         # read on Vector Reg
-    #         return RFs["VRF"].Read(idx)
-    #     elif re_match[0] == "SR":
-    #         # read on Scalar Reg
-    #         return RFs["SRF"].Read(idx)
-
-    # def RF_WRITE(rf_str: str, idx: int, val: list(int), RFs: dict(RegisterFile)):
-    #     re_match = re.match("(\w{2})(\d)", rf_str)
-    #     if re_match[0] == "VR":
-    #         # write on Vector Reg
-    #         RFs["VRF"].Write(idx, val)
-    #     elif re_match[0] == "SR":
-    #         # write on Scalar Reg
-    #         RFs["SRF"].Write(idx, val)
-
     def run(self):
         while (True):
             print("PC: ", self.PC)
@@ -167,7 +151,7 @@ class Core():
                 rs1 = int(instr[2][2])
                 rs2 = int(instr[3][2])
 
-                # copy the value of rd into temporary list, remain the length=64
+                # copy the value of rd into temporary list, remain the length = 64
                 temp_list = self.VRF.Read(rd)
                 match op:
                     case "ADDVV":
@@ -175,51 +159,43 @@ class Core():
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VRF.Read(rs1)[i]+self.VRF.Read(rs2)[i]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case "SUBVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VRF.Read(rs1)[i]-self.VRF.Read(rs2)[i]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case "ADDVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VRF.Read(rs1)[i]+self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case "SUBVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VRF.Read(rs1)[i]-self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case "MULVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VRF.Read(rs1)[i]*self.VRF.Read(rs2)[i]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case "DIVVV":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 assert (self.VRF.Read(rs2)[i] != 0), f"In DIVVV: self.VRF.Read({rs2})[{i}] = {self.VRF.Read(rs2)[i]}"
                                 temp_list[i] = self.VRF.Read(rs1)[i]//self.VRF.Read(rs2)[i]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case "MULVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VRF.Read(rs1)[i]*self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case "DIVVS":
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 assert (self.SRF.Read(rs2)[0] != 0), f"In DIVVS: self.SRF.Read({rs2})[0] = {self.SRF.Read(rs2)[0]}"
                                 temp_list[i] = self.VRF.Read(rs1)[i]//self.SRF.Read(rs2)[0]
                         self.VRF.Write(rd, temp_list)
-                        # pass
                     case _ :
                         print("Core run - ERROR: Vector Operations invalid operation ", op)
             # Vector Mask Register Operations
@@ -339,18 +315,15 @@ class Core():
                 if op == "LV":
                     temp_list = [0x0 for i in range(64)]
                     # sdmem: 2^13, vdmem:2^17 
-                    # assert (0 <= address and address < pow(2, 13)), f"In LV: index must between 0 and 2^13, but got {address}"
                     for i in range(self.VLR):
                         # starting address: 
                         if self.VMR[i] == 1:
                             temp_list[i] = self.VDMEM.Read(address0+i)
                     self.VRF.Write(rs1, temp_list)
-                    # pass
                 elif op == "SV":
                     for i in range(self.VLR):
                         if self.VMR[i] == 1:
                             self.VDMEM.Write(address0+i, self.VRF.Read(rs1)[i])
-                    # pass
                 else:
                     print("Core run - ERROR: Memory Access Operations LV/SV invalid operation ", op)
             elif re.match("((LV|SV)\w{1,2})", op):
@@ -366,26 +339,26 @@ class Core():
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VDMEM.Read(address0+i*stride)
                         self.VRF.Write(rs1, temp_list)
-                        # pass
+                        
                     case "SVWS":
                         stride = self.SRF.Read(rs3)[0]
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 self.VDMEM.Write(address0+i*stride, self.VRF.Read(rs1)[i])
-                        # pass
+                        
                     case "LVI":
                         offset = self.VRF.Read(rs3)
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VDMEM.Read(address0+offset[i])
                         self.VRF.Write(rs1, temp_list)
-                        # pass
+                        
                     case "SVI":
                         offset = self.VRF.Read(rs3)
                         for i in range(self.VLR):
                             if self.VMR[i] == 1:
                                 self.VDMEM.Write(address0+offset[i], self.VRF.Read(rs1)[i])
-                        # pass
+                        
                     case _ :
                         print("Core run - ERROR: Memory Access Operations invalid operation ", op)
             elif op == "LS" or op == "SS":
@@ -398,11 +371,11 @@ class Core():
                     temp_list = [0x0]
                     temp_list[0] = self.SDMEM.Read(address0+imm)
                     self.SRF.Write(rs1, temp_list)
-                    # pass
+                    
                 elif op == "SS":
                     value = self.SRF.Read(rs1)[0]
                     self.SDMEM.Write(address0+imm, value)
-                    # pass
+                    
                 else:
                     print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
             # Scalar Operations
@@ -424,6 +397,7 @@ class Core():
                     case "SLL":
                         self.SRF.Write(rd, [self.SRF.Read(rs1)[0] << self.SRF.Read(rs2)[0]])
                     case "SRL":
+                        # Source: https://stackoverflow.com/questions/5832982/how-to-get-the-logical-right-binary-shift-in-python
                         self.SRF.Write(rd, [(self.SRF.Read(rs1)[0] % 0x100000000) >> self.SRF.Read(rs2)[0]])
                     case "SRA":
                         self.SRF.Write(rd, [self.SRF.Read(rs1)[0] >> self.SRF.Read(rs2)[0]])

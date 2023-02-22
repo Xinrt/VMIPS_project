@@ -1,48 +1,40 @@
 # VMIPS_project
-## **Questions**
-- Q: Will S__VV S__VS also set the respective bit to 0?
-- Q: What happends to the bits in VMR if we increase/decrease the VLR. Will they be the default value? Or will they remain what it is?
-- Q: Does VMR affect Memory Access operations?
 ## Part 1 - Functional Simulator
-
-### Task
-
-#### complete the VMIPS components
-
-- [x] DMEM: Xinran
+### TODO
+- [ ] VMR should not affect execution, it should only affect WB and mem access
+### Questions
+- Q: Will S__VV S__VS also set the respective bit to 0?
+  - A: **Yes**
+- Q: What happends to the bits in VMR if we increase/decrease the VLR. Will they be the default value? Or will they remain what it is?
+  - A: **VMR won't change**
+- Q: Does **VLR** affect Memory Access operations?
+  - **YES**, there will only be as many memory accesses as the number in VLR.
+- Q: Does **VMR** affect Memory Access operations?
+  - **YES**, we only write back data into those elements with their VM set to 1.
+### VMIPS components
+- DMEM: Xinran
   - Vector DMEM
   - Register DMEM
-- [x] Register Files: Tianheng
+- Register Files: Tianheng
   - Scalar Register File
   - Vector Register File
-- [x] Vector Mask Register(int list): 64 bits
-- [x] Vector Length Register(int): 32 bits
-- [x] Add assert in DMEM and RF read, write on idx and val.
-  - [x] DMEM
-    - [x] type
-    - [x] range
-    - [x] val max min
-  - [x] RF
-    - [x] type
-    - [x] range
-    - [x] val max min
+- Vector Mask Register(int list): 64 bits
+- Vector Length Register(int): 32 bits
+- Add assert in DMEM and RF read, write on idx and val.
+  - DMEM
+    - type
+    - range
+    - val max min
+  - RF
+    - type
+    - range
+    - val max min
 
-#### two functions
+### Test Cases
 
 - dot product function
-  **TODO:** 
-  how to write dot product function in assembly?
-
-  computes the dot product of two vectors of 450 elements each and store the result in to address 2048 of VDMEM
-
-- instruction verify function
-
-  verifies all 22 instructions in the ISA and submit its output
-
-
-
-#### Instructions Tests
-- 24 instructions tests
+- instruction verification functions
+verify all 22 instructions in the ISA and submit its output
   - test1:
     1 5 7 9 11 13 15 17 19 21
   - test2:
@@ -53,10 +45,3 @@
     16
   - test5:
     23
-
-
-
-
-
-
-

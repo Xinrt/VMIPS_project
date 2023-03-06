@@ -1,8 +1,15 @@
-# VMIPS_project
+# VMIPS Project
+
+## Part 2 - Timing Simulator
+
 ## Part 1 - Functional Simulator
+
 ### TODO
+
 - [ ] VMR should not affect execution, it should only affect WB and mem access
+
 ### Questions
+
 - Q: Will S__VV S__VS also set the respective bit to 0?
   - A: **Yes**
 - Q: What happends to the bits in VMR if we increase/decrease the VLR. Will they be the default value? Or will they remain what it is?
@@ -11,7 +18,9 @@
   - **YES**, there will only be as many memory accesses as the number in VLR.
 - Q: Does **VMR** affect Memory Access operations?
   - **YES**, we only write back data into those elements with their VM set to 1.
+
 ### VMIPS components
+
 - DMEM: Xinran
   - Vector DMEM
   - Register DMEM

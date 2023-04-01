@@ -2,6 +2,20 @@
 
 ## Part 2 - Timing Simulator
 
+### Block Diagram
+
+https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=sharing
+
+
+
+### Report
+
+https://www.overleaf.com/6474812394bgkjvbmvrgps
+
+
+
+
+
 ## Part 1 - Functional Simulator
 
 ### TODO
@@ -43,7 +57,7 @@
 
 - dot product function
 - instruction verification functions
-verify all 22 instructions in the ISA and submit its output
+  verify all 22 instructions in the ISA and submit its output
   - test1:
     1 5 7 9 11 13 15 17 19 21
   - test2:

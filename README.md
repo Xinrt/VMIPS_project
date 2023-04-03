@@ -8,9 +8,27 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 
 
 
+**IMEM**: stores all instructions that can be read (Code.asm file)
+
+**VRF**: contains 8 Vector Registers each with a maximum capacity of 2048 bits or 256 bytes or 64
+
+32-bit elements. Maximum Vector Length is set to 64
+
+**SRF**: contains 8 Scalar Registers of 32 bits each
+
+**VDMEM:** Vector Data Memory with a capacity of **512 KB**, word addressable
+
+**SDMEM:** Scalar Data Memory with a capacity of **32 KB**, word addressable.
+
+
+
 ### Report
 
 https://www.overleaf.com/6474812394bgkjvbmvrgps
+
+
+
+
 
 
 

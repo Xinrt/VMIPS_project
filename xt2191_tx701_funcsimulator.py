@@ -16,7 +16,7 @@ class IMEM(object):
             with open(self.filepath, 'r') as insf:
                 self.instructions = [ins.split('#')[0].strip() for ins in insf.readlines() if not (ins.startswith('#') or ins.strip() == '')]
             print("IMEM - Instructions loaded from file:", self.filepath)
-            # print("IMEM - Instructions:", self.instructions)
+            print("IMEM - Instructions:", self.instructions)
         except:
             print("IMEM - ERROR: Couldn't open file in path:", self.filepath)
 
@@ -135,14 +135,19 @@ class Core():
         self.VMR = [1 for i in range(64)]
 
     def parseInstr(self, instrStr: str):
-        instrList = instrStr.split(' ')
-        return instrList
+        # instrList = instrStr.split(' ')
+
+        # Cope with multiple spaces between operands
+        words_list = re.findall(r'\S+', instrStr)
+        # print(instrList)
+        return words_list
 
     def run(self):
         while (True):
             print("PC: ", self.PC)
-            print("VMR: ", self.VMR)
+            # print("VMR: ", self.VMR)
             instr = self.parseInstr(self.IMEM.Read(self.PC))
+            print("Instr: ", instr)
             op = instr[0]
 
             # Vector Operations
@@ -300,7 +305,7 @@ class Core():
                 rs = int(instr[1][2])
                 if op == "MTCL":
                     sr = self.SRF.Read(rs)[0]
-                    assert (0 <= sr and sr <= 64), f"In MTCL: val must between 0 and 64, but got {sr}"
+                    # assert (0 <= sr and sr <= 64), f"In MTCL: val must between 0 and 64, but got {sr}"
                     self.VLR = sr
                 elif op == "MFCL":
                     self.SRF.Write(rs, [self.VLR])
@@ -313,7 +318,7 @@ class Core():
                 address0 = self.SRF.Read(rs2)[0]
                 
                 if op == "LV":
-                    temp_list = [0x0 for i in range(64)]
+                    temp_list = self.VRF.Read(rs1)
                     # sdmem: 2^13, vdmem:2^17 
                     for i in range(self.VLR):
                         # starting address: 
@@ -331,7 +336,7 @@ class Core():
                 rs2 = int(instr[2][2])
                 rs3 = int(instr[3][2])
                 address0 = self.SRF.Read(rs2)[0]
-                temp_list = [0x0 for i in range(64)]
+                temp_list = self.VRF.Read(rs1)
                 match op:
                     case "LVWS":
                         stride = self.SRF.Read(rs3)[0]

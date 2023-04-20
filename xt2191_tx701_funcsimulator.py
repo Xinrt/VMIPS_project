@@ -6,6 +6,9 @@ import argparse
 import copy
 import re
 
+vlr_string = ""
+resolved_string = ""
+
 class IMEM(object):
     def __init__(self, iodir):
         self.size = pow(2, 16)  # Can hold a maximum of 2^16 instructions.
@@ -149,13 +152,15 @@ class Core():
             instr = self.parseInstr(self.IMEM.Read(self.PC))
             print("Instr: ", instr)
             op = instr[0]
-
+            global vlr_string
+            global resolved_string
+            vlr_string = vlr_string + str(self.VLR) + "\n"
             # Vector Operations
             if re.match("(ADD|SUB|MUL|DIV)\w{2}", op):
                 rd = int(instr[1][2])
                 rs1 = int(instr[2][2])
                 rs2 = int(instr[3][2])
-
+                resolved_string = resolved_string + self.IMEM.Read(self.PC) + "\n"
                 # copy the value of rd into temporary list, remain the length = 64
                 temp_list = self.VRF.Read(rd)
                 match op:
@@ -208,6 +213,7 @@ class Core():
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 vr1 = self.VRF.Read(rs1)
+                resolved_string = resolved_string + self.IMEM.Read(self.PC) + "\n"
                 match op:
                     case "SEQVV":
                         vr2 = self.VRF.Read(rs2)
@@ -297,12 +303,15 @@ class Core():
                         print("Core run - ERROR: Vector Mask Operations invalid operation ", op)
             elif op == "CVM":
                 self.VMR = [1 for i in range(64)]
+                resolved_string = resolved_string + self.IMEM.Read(self.PC) + "\n"
             elif op == "POP":
                 rs = int(instr[1][2])
                 self.SRF.Write(rs, [self.VMR.count(1)])
+                resolved_string = resolved_string + self.IMEM.Read(self.PC) + "\n"
             # Vector Length Register Operations
             elif op == "MTCL" or op == "MFCL":
                 rs = int(instr[1][2])
+                resolved_string = resolved_string + self.IMEM.Read(self.PC) + "\n"
                 if op == "MTCL":
                     sr = self.SRF.Read(rs)[0]
                     # assert (0 <= sr and sr <= 64), f"In MTCL: val must between 0 and 64, but got {sr}"
@@ -316,78 +325,97 @@ class Core():
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 address0 = self.SRF.Read(rs2)[0]
-                
+                res_string = "("
                 if op == "LV":
                     temp_list = self.VRF.Read(rs1)
                     # sdmem: 2^13, vdmem:2^17 
                     for i in range(self.VLR):
+                        res_string = res_string + str(address0+i) + ","
                         # starting address: 
                         if self.VMR[i] == 1:
                             temp_list[i] = self.VDMEM.Read(address0+i)
                     self.VRF.Write(rs1, temp_list)
+                    res_string = res_string[:-1]
+                    res_string = res_string + ")"
                 elif op == "SV":
                     for i in range(self.VLR):
+                        res_string = res_string + str(address0+i) + ","
                         if self.VMR[i] == 1:
                             self.VDMEM.Write(address0+i, self.VRF.Read(rs1)[i])
+                    res_string = res_string[:-1]
+                    res_string = res_string + ")"
                 else:
                     print("Core run - ERROR: Memory Access Operations LV/SV invalid operation ", op)
+                
+                resolved_string = resolved_string + op + " " + instr[1] + " " + res_string + "\n"
             elif re.match("((LV|SV)\w{1,2})", op):
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 rs3 = int(instr[3][2])
                 address0 = self.SRF.Read(rs2)[0]
                 temp_list = self.VRF.Read(rs1)
+                res_string = "("
                 match op:
                     case "LVWS":
                         stride = self.SRF.Read(rs3)[0]
                         for i in range(self.VLR):
+                            res_string = res_string + str(address0+i*stride) + ","
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VDMEM.Read(address0+i*stride)
                         self.VRF.Write(rs1, temp_list)
-                        
+                        res_string = res_string[:-1]
+                        res_string = res_string + ")"
                     case "SVWS":
                         stride = self.SRF.Read(rs3)[0]
                         for i in range(self.VLR):
+                            res_string = res_string + str(address0+i*stride) + ","
                             if self.VMR[i] == 1:
                                 self.VDMEM.Write(address0+i*stride, self.VRF.Read(rs1)[i])
-                        
+                        res_string = res_string[:-1]
+                        res_string = res_string + ")"
                     case "LVI":
                         offset = self.VRF.Read(rs3)
                         for i in range(self.VLR):
+                            res_string = res_string + str(address0+offset[i]) + ","
                             if self.VMR[i] == 1:
                                 temp_list[i] = self.VDMEM.Read(address0+offset[i])
                         self.VRF.Write(rs1, temp_list)
-                        
+                        res_string = res_string[:-1]
+                        res_string = res_string + ")"
                     case "SVI":
                         offset = self.VRF.Read(rs3)
                         for i in range(self.VLR):
+                            res_string = res_string + str(address0+offset[i]) + ","
                             if self.VMR[i] == 1:
                                 self.VDMEM.Write(address0+offset[i], self.VRF.Read(rs1)[i])
-                        
+                        res_string = res_string[:-1]
+                        res_string = res_string + ")"
                     case _ :
                         print("Core run - ERROR: Memory Access Operations invalid operation ", op)
+                resolved_string = resolved_string + op + " " + instr[1] + " " + res_string + "\n"
             elif op == "LS" or op == "SS":
                 rs1 = int(instr[1][2])
                 rs2 = int(instr[2][2])
                 imm = int(instr[3])
                 address0 = self.SRF.Read(rs2)[0]
-                
+                res_string = "(" + str(address0+imm) + ")"
+
                 if op == "LS":
                     temp_list = [0x0]
                     temp_list[0] = self.SDMEM.Read(address0+imm)
                     self.SRF.Write(rs1, temp_list)
-                    
                 elif op == "SS":
                     value = self.SRF.Read(rs1)[0]
                     self.SDMEM.Write(address0+imm, value)
-                    
                 else:
                     print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
+                resolved_string = resolved_string + op + " " + instr[1] + " " + res_string + "\n"
             # Scalar Operations
             elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR" or op == "SLL" or op == "SRL" or op == "SRA":
                 rd = int(instr[1][2])
                 rs1 = int(instr[2][2])
                 rs2 = int(instr[3][2])
+                resolved_string = resolved_string + self.IMEM.Read(self.PC) + "\n"
                 match op:
                     case "ADD":
                         self.SRF.Write(rd, [self.SRF.Read(rs1)[0] + self.SRF.Read(rs2)[0]])
@@ -435,8 +463,10 @@ class Core():
                             self.PC += imm - 1
                     case _ :
                         print("Core run - ERROR: Control Operations invalid operation ", op)
+                resolved_string = resolved_string + "B (" + str(self.PC) + ")" + "\n"
             # Halt
             elif op == "HALT":
+                resolved_string = resolved_string + "HALT"
                 return
             else:
                 print("Core - ERROR: Operation invalid ", op)
@@ -475,4 +505,13 @@ if __name__ == "__main__":
     sdmem.dump()
     vdmem.dump()
 
+    # output vlr
+    vlr_file = open(iodir + "/vlr.txt", "w")
+    vlr_file.write(vlr_string)
+    vlr_file.close()
+    
+    # output resolved instructions
+    vlr_file = open(iodir + "/resolved_Code.asm", "w")
+    vlr_file.write(resolved_string)
+    vlr_file.close()
     # THE END

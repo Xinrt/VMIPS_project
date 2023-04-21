@@ -53,6 +53,12 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
   - A:
 - [ ] Q: performance of your design for all three functions: what three? DP, FC, and?
   - A:
+- [ ] Q: When WB to vector register, do I need to check whether rd is also busy? code line 412(Vector compute), 538(Vector mem) Maybe because there are two pipeline for compute and mem access and ordering for WB is important
+  - A:
+- [ ] Q: What about WB to scalar register, since they are all 1 cycle, do I really need to care whether rd will have conflict? code line 566(Scalar mem), 590(Scalar compute)
+  - A:
+- [ ] Q: The busyboard update seems have some bugs, for example when two consecutive instructions are going to write to a same register rd, then when the first one got back the busyborad will be cleared but the second one still have to secure the rd, **maybe change the busyboard as a semephore rather than a lock?**
+  - A:
 - [ ] Q:
   - A:
 

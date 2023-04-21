@@ -409,6 +409,7 @@ class Core():
                         match op:
                             case "ADDVV" | "SUBVV":
                                 if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                    # ! In WB to vector register, do I need to check whether rd is also busy?
                                     public_vrbb.Mark(rd)
                                     task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
                                     stall_time = 0
@@ -435,7 +436,7 @@ class Core():
                                 else:
                                     stall = True
                             case "MULVS":
-                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                if (not public_vrbb.isBusy(rs1) and not public_srbb.isBusy(rs2)):
                                     public_vrbb.Mark(rd)
                                     task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
                                     stall_time = 0
@@ -482,7 +483,7 @@ class Core():
                                 else:
                                     stall = True
                             case "SEQVS" | "SNEVS" | "SGTVS" | "SLTVS" | "SGEVS" | "SLEVS":
-                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                if (not public_vrbb.isBusy(rs1) and not public_srbb.isBusy(rs2)):
                                     task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
                                     stall_time = 0
                                     stall = False
@@ -544,6 +545,7 @@ class Core():
                             break
 
                     if (len(vDataQ) <= self.dataQueueDepth) and (not stall) and (not public_vrbb.isBusy(rs1)):   
+                        # Also check rs1 isBusy since there are two pipelines that WB to rs1
                         # ! Does read mem also need to be busy?
                         for mem in mems:
                             public_vmembb.Mark(mem)

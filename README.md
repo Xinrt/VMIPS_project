@@ -58,14 +58,13 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 
 ### TODO
 - Functional simulator
-  - [ ] Modify functional simulator to generate resolved instructions
-    - [ ] Memory Access
-    - [ ] Branch
-  - [ ] Modify functional simulator to generate VLR
+  - [x] Modify functional simulator to generate resolved instructions
+    - [x] Memory Access
+    - [x] Branch
+  - [x] Modify functional simulator to generate VLR
 - Timing simulator
   - [x] Backend
-  - Frontend
-    - [ ] 
+  - [x] Frontend
 
 ### Report
 

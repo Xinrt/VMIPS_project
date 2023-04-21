@@ -20,7 +20,52 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 
 **SDMEM:** Scalar Data Memory with a capacity of **32 KB**, word addressable.
 
+### Question to ask
+- [ ] Q: If there is a stall should I still IF?
+  - A: 
+- [ ] Q: how will stall number be calculated? 
+  - A:
+- [ ] Q: what is VDM partition?
+  - A:
+- [ ] Q: for the vlsPipelineDepth, can I assume each vector mem load/store will simply cost vlsPipelineDepth cycle? Or they should also be vlsPipelineDepth + number of vector elements load/store - 1?
+  - A:
+- [ ] Q: what determines stall in mem access? ![bank_conflict](readme_pic/WeChat%20Image_20230420232250.png)
+  - A:
+- [ ] Q: what about Scalar MEM? should I also resolve the scalar memory conflict? Or they simply take one cycle so they don't need to resolve the conflict? suppose I have LV VR0 (0, 1, 2, …. 63) then LV VR1 (0, 1, 2, …. 63), do I need to stall the second instruction? **code line 541**
+  - A:
+- [ ] Q: expected output? per cycle or per instruction, or both?
+  - A:
+- [ ] Q: Cycle needed for Vector Mask Register Operations? **code line 408**
+  - A:
+- [ ] Q: What will happen in the vector compute if the VLR == 0? **code line 186**
+  - A:
+- [ ] Q: Are Vmem access complete as a whole, or it can be cleared from VMEM Busyboard one by one? **code line 208**
+  - A:
+- [ ] Q: If not, how frequently will the memory back? **code line 300**
+  - A:
+- [ ] Q: What registers will be count as busy, all of them? Or only the write back one?
+  - A:
+- [ ] Q: Do both LV(read mem) or SV(write) mems counted as busy, all of them? Or only the write back one?
+  - A:
+- [ ] Q: naming of resolved code file?
+  - A:
+- [ ] Q: use of vlr.txt? what is its conventional name?
+  - A:
+- [ ] Q:
+  - A:
+- [ ] Q:
+  - A:
 
+### TODO
+- Functional simulator
+  - [ ] Modify functional simulator to generate resolved instructions
+    - [ ] Memory Access
+    - [ ] Branch
+  - [ ] Modify functional simulator to generate VLR
+- Timing simulator
+  - [x] Backend
+  - Frontend
+    - [ ] 
 
 ### Report
 

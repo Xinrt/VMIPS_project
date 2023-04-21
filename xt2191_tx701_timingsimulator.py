@@ -1,5 +1,33 @@
+# Author: Xinran Tang(xt2191), Tianheng Xiang(tx701)
+# This code reqires python version >= 3.11.0
 import os
 import argparse
+import copy
+import re
+from collections import deque
+
+complete_list = []
+vlr_list = []
+
+def parseInstr(instrStr: str):
+     # Check if the input string matches the format "LV VR1 (0,1,...)"
+    match = re.match(r'^(\w+)\s+(\w+)\s+\((\d+(?:,\s*\d+)*)\)$', instrStr)
+    if match:
+        # If it matches, remove the spaces between the commas and split the last part by commas
+        last_part = [int(d) for d in match.group(3).replace(' ','').split(',')]
+        # Return the parts as a list with the last part as a list of integers
+        instrList = [match.group(1), match.group(2), last_part]
+    else:
+        # Check if the input string matches the format "B (3)"
+        match = re.match(r'^(\w+)\s+\((\d+)\)$', instrStr)
+        if match:
+            # If it matches, return the parts as a list with the last part as an integer
+            instrList = [match.group(1), int(match.group(2))]
+        else:
+            # If it doesn't match either format, split the input string by whitespace and return the parts as a list
+            instrList = re.split(r'\s+', instrStr.strip())
+    # print(instrList)
+    return instrList
 
 class Config(object):
     def __init__(self, iodir):
@@ -18,7 +46,8 @@ class Config(object):
 class IMEM(object):
     def __init__(self, iodir):
         self.size = pow(2, 16) # Can hold a maximum of 2^16 instructions.
-        self.filepath = os.path.abspath(os.path.join(iodir, "Code.asm"))
+        self.filepath = os.path.abspath(os.path.join(iodir, "resolved_Code.asm"))
+        # self.filepath = os.path.abspath(os.path.join(iodir, "Code.asm"))
         self.instructions = []
 
         try:
@@ -29,7 +58,7 @@ class IMEM(object):
         except:
             print("IMEM - ERROR: Couldn't open file in path:", self.filepath)
             raise
-
+        # print(self.instructions)
     def Read(self, idx): # Use this to read from IMEM.
         if idx < self.size:
             return self.instructions[idx]
@@ -102,20 +131,519 @@ class RegisterFile(object):
             print(self.name, "- ERROR: Couldn't open output file in path:", opfilepath)
             raise
 
+class BusyBoard(object):
+    def __init__(self, count):
+        self.element  = [False for _ in range(count)] # list of lists of integers
+
+    def Mark(self, idx: int):
+        '''
+            Only Mark if it is going to write this register/memory 
+        '''
+        if idx != None:
+            self.element[idx] = True
+
+    def Clear(self, idx: int):
+        if idx != None:
+            self.element[idx] = False
+
+    def isBusy(self, idx: int):
+        if idx != None:
+            return self.element[idx]
+        
+class Backend(object):
+    def __init__(self, config: Config):
+        # Vector operation pipeline
+        self.MulPipeline = []
+        self.DivPipeline = []
+        self.AddPipeline = []
+
+        # Vector memory pipeline
+        self.VmemPipeline = []
+
+        # Vector memory bank
+        self.VmemBankQ = deque()
+        self.VmemTime = 1 # The first time task dispatched to Backend already execute for one cycle
+        
+        # Scalar operation pipeline
+        self.ScalarPipeline = []
+
+        # Scalar memory pipeline
+        self.SmemPipeline = []
+
+        # Number of parallel instruction 
+        self.numLanes = int(config.parameters["numLanes"])
+
+        # Number of cycles takes
+        self.pipelineDepthMul = int(config.parameters["pipelineDepthMul"])
+        self.pipelineDepthAdd = int(config.parameters["pipelineDepthAdd"])
+        self.pipelineDepthDiv = int(config.parameters["pipelineDepthDiv"])
+
+        # VDMEM LS parameters
+        self.vdmNumBanks = int(config.parameters["vdmNumBanks"])
+        self.vlsPipelineDepth = int(config.parameters["vlsPipelineDepth"])
+    
+    def isClean(self):
+        return (len(self.MulPipeline) == 0 and len(self.DivPipeline) == 0 and len(self.AddPipeline) == 0 and len(self.VmemPipeline) == 0 and len(self.ScalarPipeline) == 0)
+
+    def dispatch(self, task_input):
+        """
+        task_input:
+        (
+            {"PC": int, "Instr": string, "cycle": int},
+            "mul/div/add/scalar/vmem": string,
+            numElement: int,
+            busyReg: int/None,
+            busyMems: list/None
+        )
+        """
+        task, type, numElement, busyReg, busyMems = task_input
+        if type == "mul" and len(self.MulPipeline) == 0:
+            # !what will happen when numElement == 0?
+            task["cycle"] += 1
+            self.MulPipeline.append((task, self.pipelineDepthMul + numElement//self.numLanes - 2, busyReg)) # -2: the other -1 is for the cycle that dispatch it also execute one cycle
+            return True
+        elif type == "div" and len(self.DivPipeline) == 0:
+            # !what will happen when numElement == 0?
+            task["cycle"] += 1
+            self.DivPipeline.append((task, self.pipelineDepthDiv + numElement//self.numLanes - 2, busyReg))
+            return True
+        elif type == "add" and len(self.AddPipeline) == 0:
+            # !what will happen when numElement == 0?
+            task["cycle"] += 1
+            self.AddPipeline.append((task, self.pipelineDepthAdd + numElement//self.numLanes - 2, busyReg))
+            return True
+        elif type == "scalar" and len(self.ScalarPipeline) == 0:
+            # !what will happen when numElement == 0?
+            task["cycle"] += 1
+            self.ScalarPipeline.append((task, 0, busyReg))
+            return True
+        elif type == "vmem" and len(self.VmemPipeline) == 0:
+            # !what will happen when numElement == 0?
+            task["cycle"] += 1
+            if busyMems != None:
+                self.VmemBankQ = deque(busyMems)
+                self.VmemTime = 1
+            self.VmemPipeline.append((task, self.vlsPipelineDepth + numElement//self.vdmNumBanks - 2, busyReg))
+            return True
+        else:
+            # Either the type is not correct or the pipeline is full
+            return False
+
+    
+    def update(self):
+        global complete_list
+        if len(self.MulPipeline) != 0:
+            # task: {"PC": int, "Instr": string, "cycle": int}
+            task, time_left, busyReg = self.MulPipeline[0]
+            if time_left == 0:
+                # Delete the element
+                self.MulPipeline.clear()
+                # Add the task to complete list
+                complete_list.append(task)
+                # Clear busyborad
+                public_vrbb.Clear(busyReg)
+            else:
+                # Increment cycle spent
+                task["cycle"] += 1
+                # Count down
+                self.MulPipeline[0] = (task, time_left - 1, busyReg)
+        elif len(self.DivPipeline) != 0:
+            # task: {"PC": int, "Instr": string, "cycle": int}
+            task, time_left, busyReg = self.DivPipeline[0]
+            if time_left == 0:
+                # Delete the element
+                self.DivPipeline.clear()
+                # Add the task to complete list
+                complete_list.append(task)
+                # Clear busyborad
+                public_vrbb.Clear(busyReg)
+            else:
+                # Increment cycle spent
+                task["cycle"] += 1
+                # Count down
+                self.DivPipeline[0] = (task, time_left - 1, busyReg)
+        elif len(self.AddPipeline) != 0:
+            # task: {"PC": int, "Instr": string, "cycle": int}
+            task, time_left, busyReg = self.AddPipeline[0]
+            if time_left == 0:
+                # Delete the element
+                self.AddPipeline.clear()
+                # Add the task to complete list
+                complete_list.append(task)
+                # Clear busyborad
+                public_vrbb.Clear(busyReg)
+            else:
+                # Increment cycle spent
+                task["cycle"] += 1
+                # Count down
+                self.AddPipeline[0] = (task, time_left - 1, busyReg)
+        elif len(self.ScalarPipeline) != 0:
+            # task: {"PC": int, "Instr": string, "cycle": int}
+            task, _, busyReg = self.ScalarPipeline[0]
+            # Delete the element
+            self.ScalarPipeline.clear()
+            # Add the task to complete list
+            complete_list.append(task)
+            # Clear SCALAR busyborad
+            public_srbb.Clear(busyReg)
+        elif len(self.VmemPipeline) != 0:
+            # task: {"PC": int, "Instr": string, "cycle": int}
+            # ! Are Vmem access complete as a whole, or it can be cleared from VMEM Busyboard one by one?
+            task, time_left, busyReg = self.VmemPipeline[0]
+            if time_left == 0:
+                # Delete the element
+                self.VmemPipeline.clear()
+                # Add the task to complete list
+                complete_list.append(task)
+                # Clear Vreg busyborad
+                public_vrbb.Clear(busyReg)
+                # Clear Vmem busyboard
+                for ele in self.VmemBankQ:
+                    public_vmembb.Clear(ele)
+                # Reset VmemBankQ
+                self.VmemBankQ.clear()
+                # Reset VmemTime
+                self.VmemTime = 1
+            else:
+                # Increment cycle spent
+                task["cycle"] += 1
+                # if self.vlsPipelineDepth < self.VmemTime and len(self.VmemBankQ) != 0:
+                #     # ! Will work properly if vdmNumBanks >= vlsPipelineDepth
+                #     # Start to return element in Vmem
+                #     public_vmembb.Clear(self.VmemBankQ.popleft())
+                # Count down
+                self.VmemPipeline[0] = (task, time_left - 1, busyReg)
+                # Increment VmemTime
+                self.VmemTime += 1
+        else:
+            # print("Empty backend!")
+            return
+
+
+class State(object):
+    def __init__(self):
+        self.IF = {"nop": False, "PC": 0}
+        self.ID = {"nop": False, "Instr": {}, "op": "", "PC": 0}
+
 class Core():
-    def __init__(self, imem, sdmem, vdmem):
+    def __init__(self, imem, sdmem, vdmem, config_input: Config):
+        # Initialization
         self.IMEM = imem
         self.SDMEM = sdmem
         self.VDMEM = vdmem
-
+        # self.srbb = srbb_input
+        # self.vrbb = vrbb_input
+        # self.vmembb = vmembb_input
+        # self.backend = backend_input
+        self.dataQueueDepth = int(config_input.parameters["dataQueueDepth"])
+        self.computeQueueDepth = int(config_input.parameters["computeQueueDepth"])
+        self.scalarQueueDepth = int(config_input.parameters["scalarQueueDepth"])
+        
         self.RFs = {"SRF": RegisterFile("SRF", 8),
                     "VRF": RegisterFile("VRF", 8, 64)}
+        self.state = State()
+        self.nextState = State()
         
-        # Your code here.
+        self.PC = 0
+
+        self.state.ID["nop"] = True
+        
         
     def run(self):
+        global vlr_list
+        global complete_list
+        # srbb = self.srbb
+        # vrbb = self.vrbb
+        # vmembb = self.vmembb
+        # backend = self.backend
+        instr = ""
+        halt = False
+        stall_time = 0
+        stall = False
+
+        vDataQ = deque()
+        vComputeQ = deque()
+        scalarQ = deque()
+
+        total_cycle = 0
+
         while(True):
-            break # Replace this line with your code.
+            # Backend
+            # First update the backend status
+            public_backend.update()
+
+            # Dispatch the tasks in queue
+            if len(vDataQ) != 0 and public_backend.dispatch(vDataQ[0]):
+                vDataQ.popleft()
+            if len(vComputeQ) != 0 and public_backend.dispatch(vComputeQ[0]):
+                vComputeQ.popleft()
+            if len(scalarQ) != 0 and public_backend.dispatch(scalarQ[0]):
+                scalarQ.popleft()
+
+            # Update cycle in the queues
+            for ele in vDataQ:
+                task, _, _, _, _ = ele
+                task["cycle"] += 1
+            for ele in vComputeQ:
+                task, _, _, _, _ = ele
+                task["cycle"] += 1
+            for ele in scalarQ:
+                task, _, _, _, _ = ele
+                task["cycle"] += 1
+
+            # End of Backend Handling
+
+            # Decode Stage
+            stall = False
+            if self.state.ID["nop"] == False:
+                op = self.state.ID["op"]
+                pc = self.state.ID["PC"]
+                # Vector Operations
+                if re.match("(ADD|SUB|MUL|DIV)\w{2}", op):
+                    rd = int(instr[1][2])
+                    rs1 = int(instr[2][2])
+                    rs2 = int(instr[3][2])
+
+                    # Check Hazard
+                    if (len(vComputeQ) <= self.computeQueueDepth and not public_vrbb.isBusy(rd)):
+                        match op:
+                            case "ADDVV" | "SUBVV":
+                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                    public_vrbb.Mark(rd)
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "add", vlr_list[pc], rd, None))
+                                else:
+                                    stall = True
+                            case "ADDVS" | "SUBVS":
+                                if (not public_vrbb.isBusy(rs1) and not public_srbb.isBusy(rs2)):
+                                    public_vrbb.Mark(rd)
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "add", vlr_list[pc], rd, None))
+                                else:
+                                    stall = True    
+                            case "MULVV":
+                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                    public_vrbb.Mark(rd)
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "mul", vlr_list[pc], rd, None))
+                                else:
+                                    stall = True
+                            case "MULVS":
+                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                    public_vrbb.Mark(rd)
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "mul", vlr_list[pc], rd, None))
+                                else:
+                                    stall = True
+                            case "DIVVV":
+                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                    public_vrbb.Mark(rd)
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "div", vlr_list[pc], rd, None))
+                                else:
+                                    stall = True
+                            case "DIVVS":
+                                if (not public_vrbb.isBusy(rs1) and not public_srbb.isBusy(rs2)):
+                                    public_vrbb.Mark(rd)
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "div", vlr_list[pc], rd, None))
+                                else:
+                                    stall = True
+                            case _ :
+                                print("Core run - ERROR: Vector Operations invalid operation ", op)
+                    else:
+                        stall = True
+                # Vector Mask Register Operations
+                elif re.match("(S\w{2}(VV|VS))", op):
+                    rs1 = int(instr[1][2])
+                    rs2 = int(instr[2][2])
+                    # Check Hazard
+                    if (len(vComputeQ) <= self.computeQueueDepth):
+                        match op:
+                            # !should we use "add" here? what is the cycle needed in S__VS?
+                            case "SEQVV" | "SNEVV" | "SGTVV" | "SLTVV" | "SGEVV" | "SLEVV":
+                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "add", vlr_list[pc], None, None))
+                                else:
+                                    stall = True
+                            case "SEQVS" | "SNEVS" | "SGTVS" | "SLTVS" | "SGEVS" | "SLEVS":
+                                if (not public_vrbb.isBusy(rs1) and not public_vrbb.isBusy(rs2)):
+                                    task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                    stall_time = 0
+                                    stall = False
+                                    vComputeQ.append((task, "add", vlr_list[pc], None, None))
+                                else:
+                                    stall = True
+                            case _ :
+                                print("Core run - ERROR: Vector Mask Operations invalid operation ", op)
+                    else:
+                        stall = True
+                elif op == "CVM":
+                    if (len(scalarQ) <= self.scalarQueueDepth):
+                        task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                        stall_time = 0
+                        stall = False
+                        scalarQ.append((task, "scalar", vlr_list[pc], None, None))
+                    else:
+                        stall = True
+                elif op == "POP":
+                    rs = int(instr[1][2])
+                    if (len(scalarQ) <= self.scalarQueueDepth):
+                        public_srbb.Mark(rs)
+                        task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                        stall_time = 0
+                        stall = False
+                        scalarQ.append((task, "scalar", vlr_list[pc], rs, None))
+                    else:
+                        stall = True
+                # Vector Length Register Operations
+                elif op == "MTCL" or op == "MFCL":
+                    rs = int(instr[1][2])
+                    if (len(scalarQ) <= self.scalarQueueDepth):
+                        if op == "MTCL":
+                            if (not public_srbb.isBusy(rs)):
+                                task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                                stall_time = 0
+                                stall = False
+                                scalarQ.append((task, "scalar", vlr_list[pc], None, None))
+                            else:
+                                stall = True
+                        elif op == "MFCL":
+                            public_srbb.Mark(rs)
+                            task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                            stall_time = 0
+                            stall = False
+                            scalarQ.append((task, "scalar", vlr_list[pc], rs, None))
+                        else:
+                            print("Core run - ERROR: Vector Length Mask Operations invalid operation ", op)
+                    else:
+                        stall = True
+                # Memory Access Operations 
+                elif re.match("((LV|SV)\w{0,2})", op):
+                    rs1 = int(instr[1][2])
+                    mems = instr[2]
+                    # check vmem busy board
+                    for mem in mems:
+                        if public_vmembb.isBusy(mem):
+                            stall = True
+                            break
+
+                    if (len(vDataQ) <= self.dataQueueDepth) and (not stall) and (not public_vrbb.isBusy(rs1)):   
+                        # ! Does read mem also need to be busy?
+                        for mem in mems:
+                            public_vmembb.Mark(mem)
+                        if op == "LV" or op == "LVWS" or op == "LVI":
+                            public_vrbb.Mark(rs1)
+                            task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                            stall_time = 0
+                            stall = False
+                            vDataQ.append((task, "vmem", vlr_list[pc], rs1, mems))
+                        elif op == "SV" or op == "SVWS" or op == "SVI":
+                            task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                            stall_time = 0
+                            stall = False
+                            vDataQ.append((task, "vmem", vlr_list[pc], None, mems))
+                        else:
+                            print("Core run - ERROR: Vector Memory Access Operations invalid operation ", op)
+                    else:
+                        stall = True
+                elif op == "LS" or op == "SS":
+                    rs1 = int(instr[1][2])
+                    mems = instr[2]
+                    # ! should I also resolve the scalar memory conflict?
+                    if op == "LS" :
+                        if (len(scalarQ) <= self.scalarQueueDepth):
+                            public_srbb.Mark(rs1)
+                            task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                            stall_time = 0
+                            stall = False
+                            scalarQ.append((task, "scalar", vlr_list[pc], rs1, None))
+                        else:
+                            stall = True
+                    elif op == "SS":
+                        if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rs1))):
+                            task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                            stall_time = 0
+                            stall = False
+                            scalarQ.append((task, "scalar", vlr_list[pc], None, None))
+                        else:
+                            stall = True
+                    else:
+                        print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
+                # Scalar Operations
+                elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR" or op == "SLL" or op == "SRL" or op ==  "SRA":
+                    rd = int(instr[1][2])
+                    rs1 = int(instr[2][2])
+                    rs2 = int(instr[3][2])
+                    if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rs1)) and (not public_srbb.isBusy(rs2))):
+                        public_srbb.Mark(rd)
+                        task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                        stall_time = 0
+                        stall = False
+                        scalarQ.append((task, "scalar", vlr_list[pc], rd, None))
+                    else:
+                        stall = True
+                # Control
+                elif re.match("B", op):
+                    if (len(scalarQ) <= self.scalarQueueDepth):
+                        task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                        stall_time = 0
+                        stall = False
+                        scalarQ.append((task, "scalar", vlr_list[pc], None, None))
+                    else:
+                        stall = True
+                # Halt
+                elif op == "HALT":
+                    pass
+                else:
+                    print("Core - ERROR: Operation invalid ", op)
+
+
+            # IF stage
+            # print("self.state.IF[nop]: " + str(self.state.IF["nop"]) + " | STALL: " + str(stall) + " | halt: " + str(halt))
+            if (self.state.IF["nop"] == False and stall == False and halt == False):
+                instr = parseInstr(self.IMEM.Read(self.PC))
+                # print("PC: ", self.PC, "Instr: ", instr)
+                op = instr[0]
+                if op == "HALT":
+                    halt = True
+                    complete_list.append({"PC": self.PC, "Instr": "HALT", "cycle": 1})
+                    # self.nextState.ID["Instr"] = self.state.ID["Instr"]
+                    # self.nextState.ID["op"] = self.state.ID["op"]
+                    # self.state.IF["nop"] = True
+                    self.nextState.IF["nop"] = True
+                    self.nextState.ID["nop"] = True
+                else:
+                    self.nextState.ID = {"nop": False, "Instr": self.IMEM.Read(self.PC), "op": op, "PC": self.PC}
+                    self.PC = self.PC + 1
+                    self.nextState.IF["PC"] = self.PC
+                    self.nextState.ID["nop"] = False
+            
+            if stall:
+                stall_time += 1
+
+            self.state = self.nextState
+            total_cycle += 1
+
+            # if (halt and public_backend.isClean() and (len(vDataQ) == 0) and (len(vComputeQ) == 0) and (len(scalarQ) == 0)):
+            #     return total_cycle
+            if (halt and public_backend.isClean() and (len(vDataQ) == 0) and (len(vComputeQ) == 0) and (len(scalarQ) == 0) or total_cycle > 800):
+                return total_cycle
 
     def dumpregs(self, iodir):
         for rf in self.RFs.values():
@@ -133,21 +661,68 @@ if __name__ == "__main__":
     # Parse Config
     config = Config(iodir)
 
-    # Parse IMEM
-    imem = IMEM(iodir)  
+    # # Parse IMEM
+    imem = IMEM(iodir)
+
+    ''' 
+    for str in imem.instructions:
+        parseInstr(str)
+    '''
+
     # Parse SMEM
     sdmem = DMEM("SDMEM", iodir, 13) # 32 KB is 2^15 bytes = 2^13 K 32-bit words.
     # Parse VMEM
     vdmem = DMEM("VDMEM", iodir, 17) # 512 KB is 2^19 bytes = 2^17 K 32-bit words. 
 
+    # Read VLR
+    try:
+        vlr_filepath = os.path.abspath(os.path.join(iodir, "vlr.txt"))
+        with open(vlr_filepath, 'r') as insf:
+            vlr_list = [int(vlr.split('#')[0].strip()) for vlr in insf.readlines() if not (vlr.startswith('#') or vlr.strip() == '')]
+        print("VLR loaded from file:", vlr_filepath)
+        # print("VLR:", vlr_list)
+        # print("VLR length:", len(vlr_list))
+    except:
+        print("VLR - ERROR: Couldn't open file in path:", vlr_filepath)
+        raise
+
+    # Initialize busyboards
+    public_srbb = BusyBoard(8)
+    public_vrbb = BusyBoard(8)
+    public_vmembb = BusyBoard(pow(2, 17))
+
+    # Initialize backend
+    public_backend = Backend(config=config)
     # Create Vector Core
-    vcore = Core(imem, sdmem, vdmem)
+    vcore = Core(imem, sdmem, vdmem, config)
 
     # Run Core
-    vcore.run()   
+    total_cycle = vcore.run()   
     vcore.dumpregs(iodir)
 
     sdmem.dump()
     vdmem.dump()
+
+    # sort the final instructions with PC in ascending order
+    sorted_lst = sorted(complete_list, key=lambda x: x["PC"])
+    output_str = ""
+    for d in sorted_lst:
+        output_str += f"{d['Instr']} latency: {d['cycle']}\n"
+    output_str += "Total cycle: " + str(total_cycle)
+    # output instruction level latency
+    vlr_file = open(iodir + "/instruction_latency.txt", "w")
+    vlr_file.write(output_str)
+    vlr_file.close()
+
+    print("srbb = \n", public_srbb.element)
+    print("\nvrbb = \n", public_vrbb.element)
+    print("\npublic_backend = \n")
+    print("\nAddPipeline = \n", public_backend.AddPipeline)
+    print("\nMulPipeline = \n", public_backend.MulPipeline)
+    print("\nDivPipeline = \n", public_backend.DivPipeline)
+    print("\nScalarPipeline = \n", public_backend.ScalarPipeline)
+    print("\nVmemPipeline = \n", public_backend.VmemPipeline)
+
+    print("Total cycle: " + str(total_cycle))
 
     # THE END

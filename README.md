@@ -51,20 +51,25 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
   - A:
 - [ ] Q: use of vlr.txt? what is its conventional name?
   - A:
-- [ ] Q:
+- [ ] Q: performance of your design for all three functions: what three? DP, FC, and?
   - A:
 - [ ] Q:
   - A:
 
 ### TODO
-- Functional simulator
+- [x] Functional simulator
   - [x] Modify functional simulator to generate resolved instructions
     - [x] Memory Access
     - [x] Branch
   - [x] Modify functional simulator to generate VLR
-- Timing simulator
+- [x] Timing simulator
   - [x] Backend
   - [x] Frontend
+- [ ] Fully Connected Layer Assembly
+- [ ] Optimization
+- [ ] Measure and plot the performance of your design for all three functions (including the dot product from part1) by varying the model parameters (different configurations)
+- [ ] report
+- [ ] block diagram
 
 ### Report
 

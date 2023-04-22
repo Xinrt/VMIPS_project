@@ -24,29 +24,29 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 - [ ] Q: If there is a stall should I still IF?
   - A: 
 - [ ] Q: how will stall number be calculated? 
-  - A:
+  - A: it does not have to be calculated
 - [ ] Q: what is VDM partition?
   - A:
 - [ ] Q: for the vlsPipelineDepth, can I assume each vector mem load/store will simply cost vlsPipelineDepth cycle? Or they should also be vlsPipelineDepth + number of vector elements load/store - 1?
   - A:
 - [ ] Q: what determines stall in mem access? ![bank_conflict](readme_pic/WeChat%20Image_20230420232250.png)
-  - A:
+  - A: The formula should be greatest common divisor
 - [ ] Q: what about Scalar MEM? should I also resolve the scalar memory conflict? Or they simply take one cycle so they don't need to resolve the conflict? suppose I have LV VR0 (0, 1, 2, …. 63) then LV VR1 (0, 1, 2, …. 63), do I need to stall the second instruction? **code line 541**
-  - A:
+  - A: 
 - [ ] Q: expected output? per cycle or per instruction, or both?
-  - A:
+  - A: only need a overall cycle time
 - [ ] Q: Cycle needed for Vector Mask Register Operations? **code line 408**
-  - A:
+  - A:keep it same with add
 - [ ] Q: What will happen in the vector compute if the VLR == 0? **code line 186**
-  - A:
+  - A: only go throught the pipelineDepth cycle
 - [ ] Q: Are Vmem access complete as a whole, or it can be cleared from VMEM Busyboard one by one? **code line 208**
   - A:
 - [ ] Q: If not, how frequently will the memory back? **code line 300**
   - A:
 - [ ] Q: What registers will be count as busy, all of them? Or only the write back one?
-  - A:
+  - A: only the WB one
 - [ ] Q: Do both LV(read mem) or SV(write) mems counted as busy, all of them? Or only the write back one?
-  - A:
+  - A: 
 - [ ] Q: naming of resolved code file?
   - A:
 - [ ] Q: use of vlr.txt? what is its conventional name?
@@ -56,9 +56,9 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 - [ ] Q: When WB to vector register, do I need to check whether rd is also busy? code line 412(Vector compute), 538(Vector mem) Maybe because there are two pipeline for compute and mem access and ordering for WB is important
   - A:
 - [ ] Q: What about WB to scalar register, since they are all 1 cycle, do I really need to care whether rd will have conflict? code line 566(Scalar mem), 590(Scalar compute)
-  - A:
+  - A: 
 - [ ] Q: The busyboard update seems have some bugs, for example when two consecutive instructions are going to write to a same register rd, then when the first one got back the busyborad will be cleared but the second one still have to secure the rd, **maybe change the busyboard as a semephore rather than a lock?**
-  - A:
+  - A:Use semephore maybe
 - [ ] Q:
   - A:
 

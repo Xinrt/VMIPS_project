@@ -132,23 +132,58 @@ class RegisterFile(object):
             raise
 
 class BusyBoard(object):
-    def __init__(self, count):
-        self.element  = [False for _ in range(count)] # list of lists of integers
+    def __init__(self, count: int):
+        self.size = count
+        self.element  = [0 for _ in range(count)] # list of lists of integers
 
     def Mark(self, idx: int):
         '''
             Only Mark if it is going to write this register/memory 
         '''
         if idx != None:
-            self.element[idx] = True
+            self.element[idx] += 1
 
     def Clear(self, idx: int):
-        if idx != None:
-            self.element[idx] = False
+        if idx != None and self.element[idx] > 0:
+            self.element[idx] -= 1
 
     def isBusy(self, idx: int):
         if idx != None:
-            return self.element[idx]
+            return self.element[idx] != 0
+
+class MemoryBank(object):
+    def __init__(self, bankSize: int, busyTime: int):
+        self.size = bankSize
+        self.bankBusyCount  = [0 for _ in range(bankSize)]
+        self.bankMemoryAddr = [-1 for _ in range(bankSize)]
+
+        self.busyTime = busyTime
+
+    def InitBank(self, mem_addr: int):
+        '''
+            bank_idx: the bank to use
+            mem_addr: the memory address to access
+        '''
+        for i in range(self.size):
+            if self.bankMemoryAddr[i] == -1:
+                # not self.busyTime - 1 !!!
+                self.bankBusyCount[i] = self.busyTime
+                self.bankMemoryAddr[i] = mem_addr
+                return i
+        # STALL since there is not empty bank!
+        return -1
+
+    def CountDown(self):
+        for i in range(self.size):
+            if self.bankBusyCount[i] > 0:
+                self.bankBusyCount[i] -= 1
+                if self.bankBusyCount[i] == 0:
+                    self.bankMemoryAddr[i] = -1
+        return
+
+    def isBusy(self, bank_idx: int):
+        if bank_idx != None:
+            return self.bankMemoryAddr[bank_idx] != -1
         
 class Backend(object):
     def __init__(self, config: Config):
@@ -162,13 +197,12 @@ class Backend(object):
 
         # Vector memory bank
         self.VmemBankQ = deque()
-        self.VmemTime = 1 # The first time task dispatched to Backend already execute for one cycle
-        
+
         # Scalar operation pipeline
         self.ScalarPipeline = []
 
-        # Scalar memory pipeline
-        self.SmemPipeline = []
+        # # Scalar memory pipeline
+        # self.SmemPipeline = []
 
         # Number of parallel instruction 
         self.numLanes = int(config.parameters["numLanes"])
@@ -219,12 +253,26 @@ class Backend(object):
             return True
         elif type == "vmem" and len(self.VmemPipeline) == 0:
             # !what will happen when numElement == 0?
-            task["cycle"] += 1
-            if busyMems != None:
-                self.VmemBankQ = deque(busyMems)
-                self.VmemTime = 1
-            self.VmemPipeline.append((task, self.vlsPipelineDepth + numElement//self.vdmNumBanks - 2, busyReg))
-            return True
+            if len(busyMems) == 0:
+                # If no memory access
+                # Add the task to complete list
+                complete_list.append(task)
+                return True
+            else: 
+                # Add the first mem access to Vmem bank
+                return_value = public_vmembb.InitBank(busyMems[0])
+                if return_value == -1:
+                    # no available bank!  STALL! Do NOTHING!
+                    return False
+                else:
+                    # available bank
+                    task["cycle"] += 1
+                    # Initialize memory access queue and dispatch the first one to memory bank
+                    self.VmemBankQ = deque(busyMems)
+                    self.VmemBankQ.popleft()
+                    # No need to pass the time_left as it will be processed by memory bank
+                    self.VmemPipeline.append((task, 0, busyReg))
+                    return True
         else:
             # Either the type is not correct or the pipeline is full
             return False
@@ -289,32 +337,30 @@ class Backend(object):
         elif len(self.VmemPipeline) != 0:
             # task: {"PC": int, "Instr": string, "cycle": int}
             # ! Are Vmem access complete as a whole, or it can be cleared from VMEM Busyboard one by one?
-            task, time_left, busyReg = self.VmemPipeline[0]
-            if time_left == 0:
-                # Delete the element
-                self.VmemPipeline.clear()
+            task, _, busyReg = self.VmemPipeline[0]
+            # Update the Memory Bank first
+            public_vmembb.CountDown()
+
+            if len(self.VmemBankQ) == 0:
                 # Add the task to complete list
                 complete_list.append(task)
                 # Clear Vreg busyborad
                 public_vrbb.Clear(busyReg)
-                # Clear Vmem busyboard
-                for ele in self.VmemBankQ:
-                    public_vmembb.Clear(ele)
                 # Reset VmemBankQ
                 self.VmemBankQ.clear()
-                # Reset VmemTime
-                self.VmemTime = 1
+                # Reset VmemPipeline
+                self.VmemPipeline.clear()
             else:
-                # Increment cycle spent
+                # Count down (actually not needed)
                 task["cycle"] += 1
-                # if self.vlsPipelineDepth < self.VmemTime and len(self.VmemBankQ) != 0:
-                #     # ! Will work properly if vdmNumBanks >= vlsPipelineDepth
-                #     # Start to return element in Vmem
-                #     public_vmembb.Clear(self.VmemBankQ.popleft())
-                # Count down
-                self.VmemPipeline[0] = (task, time_left - 1, busyReg)
-                # Increment VmemTime
-                self.VmemTime += 1
+                # Try to add bank
+                return_value = public_vmembb.InitBank(self.VmemBankQ[0])
+                if return_value == -1:
+                    # no available bank! Do NOTHING!
+                    return
+                else:
+                    # Successfully add to memory bank
+                    self.VmemBankQ.popleft()
         else:
             # print("Empty backend!")
             return
@@ -352,10 +398,6 @@ class Core():
     def run(self):
         global vlr_list
         global complete_list
-        # srbb = self.srbb
-        # vrbb = self.vrbb
-        # vmembb = self.vmembb
-        # backend = self.backend
         instr = ""
         halt = False
         stall_time = 0
@@ -538,17 +580,10 @@ class Core():
                 elif re.match("((LV|SV)\w{0,2})", op):
                     rs1 = int(instr[1][2])
                     mems = instr[2]
-                    # check vmem busy board
-                    for mem in mems:
-                        if public_vmembb.isBusy(mem):
-                            stall = True
-                            break
 
                     if (len(vDataQ) <= self.dataQueueDepth) and (not stall) and (not public_vrbb.isBusy(rs1)):   
                         # Also check rs1 isBusy since there are two pipelines that WB to rs1
-                        # ! Does read mem also need to be busy?
-                        for mem in mems:
-                            public_vmembb.Mark(mem)
+                        # ! Does read mem also need to be busy? A: No
                         if op == "LV" or op == "LVWS" or op == "LVI":
                             public_vrbb.Mark(rs1)
                             task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
@@ -644,7 +679,7 @@ class Core():
 
             # if (halt and public_backend.isClean() and (len(vDataQ) == 0) and (len(vComputeQ) == 0) and (len(scalarQ) == 0)):
             #     return total_cycle
-            if (halt and public_backend.isClean() and (len(vDataQ) == 0) and (len(vComputeQ) == 0) and (len(scalarQ) == 0) or total_cycle > 800):
+            if (halt and public_backend.isClean() and (len(vDataQ) == 0) and (len(vComputeQ) == 0) and (len(scalarQ) == 0)):
                 return total_cycle
 
     def dumpregs(self, iodir):
@@ -691,7 +726,7 @@ if __name__ == "__main__":
     # Initialize busyboards
     public_srbb = BusyBoard(8)
     public_vrbb = BusyBoard(8)
-    public_vmembb = BusyBoard(pow(2, 17))
+    public_vmembb = MemoryBank(bankSize=int(config.parameters["vdmNumBanks"]), busyTime=int(config.parameters["vlsPipelineDepth"]))
 
     # Initialize backend
     public_backend = Backend(config=config)

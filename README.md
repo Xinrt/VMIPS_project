@@ -34,7 +34,7 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 - [ ] Q: what about Scalar MEM? should I also resolve the scalar memory conflict? Or they simply take one cycle so they don't need to resolve the conflict? suppose I have LV VR0 (0, 1, 2, …. 63) then LV VR1 (0, 1, 2, …. 63), do I need to stall the second instruction? **code line 541**
   - A: 
 - [ ] Q: expected output? per cycle or per instruction, or both?
-  - A: only need a overall cycle time
+  - A: only need an overall cycle time
 - [ ] Q: Cycle needed for Vector Mask Register Operations? **code line 408**
   - A:keep it same with add
 - [ ] Q: What will happen in the vector compute if the VLR == 0? **code line 186**
@@ -59,7 +59,7 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
   - A: 
 - [ ] Q: The busyboard update seems have some bugs, for example when two consecutive instructions are going to write to a same register rd, then when the first one got back the busyborad will be cleared but the second one still have to secure the rd, **maybe change the busyboard as a semephore rather than a lock?**
   - A:Use semephore maybe
-- [ ] Q:
+ - [ ] Q:
   - A:
 
 ### TODO

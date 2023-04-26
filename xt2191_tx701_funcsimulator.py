@@ -147,10 +147,11 @@ class Core():
 
     def run(self):
         while (True):
-            print("PC: ", self.PC)
+            # print("PC: ", self.PC)
             # print("VMR: ", self.VMR)
             instr = self.parseInstr(self.IMEM.Read(self.PC))
-            print("Instr: ", instr)
+            # print("Instr: ", instr)
+            # print("SR0: ", self.SRF.Read(0)[0])
             op = instr[0]
             global vlr_string
             global resolved_string
@@ -401,6 +402,7 @@ class Core():
                 res_string = "(" + str(address0+imm) + ")"
 
                 if op == "LS":
+                    # print("SR5: ", self.SRF.Read(5)[0], "rs1: ", rs1, "rs2: ", rs2, "imm: ", imm, "address0: ", address0)
                     temp_list = [0x0]
                     temp_list[0] = self.SDMEM.Read(address0+imm)
                     self.SRF.Write(rs1, temp_list)
@@ -444,6 +446,7 @@ class Core():
                 assert (-(2 ** 20) <= imm and imm <= (2 ** 20)), f"In Control: imm must between {-(2 ** 20)} and {(2 ** 20)}, but got {imm}"
                 match op:
                     case "BEQ":
+                        # print("SR3: ", self.SRF.Read(3)[0], "SR6: ", self.SRF.Read(6)[0])
                         if self.SRF.Read(rs1)[0] == self.SRF.Read(rs2)[0]:
                             self.PC += imm - 1
                     case "BNE":
@@ -453,6 +456,7 @@ class Core():
                         if self.SRF.Read(rs1)[0] > self.SRF.Read(rs2)[0]:
                             self.PC += imm - 1
                     case "BLT":
+                        # print("SR2: ", self.SRF.Read(2)[0], "SR5: ", self.SRF.Read(5)[0])
                         if self.SRF.Read(rs1)[0] < self.SRF.Read(rs2)[0]:
                             self.PC += imm - 1
                     case "BGE":

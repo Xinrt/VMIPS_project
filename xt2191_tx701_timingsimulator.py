@@ -565,7 +565,7 @@ class Core():
                         stall = True
                 elif op == "POP":
                     rs = int(instr[1][2])
-                    if (len(scalarQ) <= self.scalarQueueDepth):
+                    if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rs))):
                         public_srbb.Mark(rs)
                         task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
                         stall_time = 0
@@ -576,15 +576,12 @@ class Core():
                 # Vector Length Register Operations
                 elif op == "MTCL" or op == "MFCL":
                     rs = int(instr[1][2])
-                    if (len(scalarQ) <= self.scalarQueueDepth):
+                    if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rs))):
                         if op == "MTCL":
-                            if (not public_srbb.isBusy(rs)):
-                                task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
-                                stall_time = 0
-                                stall = False
-                                scalarQ.append((task, "scalar", vlr_list[pc], None, None))
-                            else:
-                                stall = True
+                            task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
+                            stall_time = 0
+                            stall = False
+                            scalarQ.append((task, "scalar", vlr_list[pc], None, None))
                         elif op == "MFCL":
                             public_srbb.Mark(rs)
                             task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
@@ -622,31 +619,28 @@ class Core():
                     rs1 = int(instr[1][2])
                     mems = instr[2]
                     # ! should I also resolve the scalar memory conflict?
-                    if op == "LS" :
-                        if (len(scalarQ) <= self.scalarQueueDepth):
+                    if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rs1))):
+                        if op == "LS" :
                             public_srbb.Mark(rs1)
                             task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
                             stall_time = 0
                             stall = False
                             scalarQ.append((task, "scalar", vlr_list[pc], rs1, None))
-                        else:
-                            stall = True
-                    elif op == "SS":
-                        if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rs1))):
+                        elif op == "SS":
                             task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
                             stall_time = 0
                             stall = False
                             scalarQ.append((task, "scalar", vlr_list[pc], None, None))
                         else:
-                            stall = True
+                            print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
                     else:
-                        print("Core run - ERROR: Memory Access Operations LS/SS invalid operation ", op)
+                        stall = True
                 # Scalar Operations
                 elif op == "ADD" or op == "SUB" or op == "AND" or op == "OR" or op == "XOR" or op == "SLL" or op == "SRL" or op ==  "SRA":
                     rd = int(instr[1][2])
                     rs1 = int(instr[2][2])
                     rs2 = int(instr[3][2])
-                    if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rs1)) and (not public_srbb.isBusy(rs2))):
+                    if (len(scalarQ) <= self.scalarQueueDepth and (not public_srbb.isBusy(rd)) and (not public_srbb.isBusy(rs1)) and (not public_srbb.isBusy(rs2))):
                         public_srbb.Mark(rd)
                         task = {"PC": pc, "Instr": self.state.ID["Instr"], "cycle": 2 + stall_time}
                         stall_time = 0

@@ -147,10 +147,11 @@ class Core():
 
     def run(self):
         while (True):
-            # print("PC: ", self.PC)
             # print("VMR: ", self.VMR)
             instr = self.parseInstr(self.IMEM.Read(self.PC))
-            # print("Instr: ", instr)
+            # if self.SRF.Read(1)[0] % 100 == 0 and self.SRF.Read(2)[0] % 100 == 0:
+            #     print("PC: ", self.PC, " Instr: ", instr, " COL: ", self.SRF.Read(1), " ROW: ", self.SRF.Read(2))
+            # print("PC: ", self.PC, " Instr: ", instr, " SR1: ", self.SRF.Read(1), " SR2: ", self.SRF.Read(2))
             # print("SR0: ", self.SRF.Read(0)[0])
             op = instr[0]
             global vlr_string
@@ -342,6 +343,7 @@ class Core():
                     for i in range(self.VLR):
                         res_string = res_string + str(address0+i) + ","
                         if self.VMR[i] == 1:
+                            # print(rs1, ", ", i, ", ", self.VRF.Read(rs1)[i])
                             self.VDMEM.Write(address0+i, self.VRF.Read(rs1)[i])
                     res_string = res_string[:-1]
                     res_string = res_string + ")"
@@ -456,7 +458,7 @@ class Core():
                         if self.SRF.Read(rs1)[0] > self.SRF.Read(rs2)[0]:
                             self.PC += imm - 1
                     case "BLT":
-                        # print("SR2: ", self.SRF.Read(2)[0], "SR5: ", self.SRF.Read(5)[0])
+                        # print("SR2: ", self.SRF.Read(2)[0], "SR7: ", self.SRF.Read(7)[0])
                         if self.SRF.Read(rs1)[0] < self.SRF.Read(rs2)[0]:
                             self.PC += imm - 1
                     case "BGE":

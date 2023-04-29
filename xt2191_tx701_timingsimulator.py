@@ -171,13 +171,23 @@ class MemoryBank(object):
             bank_idx: the bank to use
             mem_addr: the memory address to access
         '''
-        # print("mem_addr ", mem_addr)
-        for i in range(self.size):
-            if not self.isBusy(i):
-                # not self.busyTime - 1 !!!
-                self.bankBusyCount[i] = self.busyTime
-                self.bankMemoryAddr[i] = mem_addr
-                return i
+        # Interleved memory bank
+        idx = mem_addr % self.size
+        if not self.isBusy(idx):
+            self.bankBusyCount[idx] = self.busyTime - 1
+            self.bankMemoryAddr[idx] = mem_addr
+            return idx
+        # End of Interleved memory bank
+
+        # # Continuous memory bank
+        # mem_per_bank = pow(2, 17) // self.size
+        # idx = mem_addr // mem_per_bank
+        # if not self.isBusy(idx):
+        #     self.bankBusyCount[idx] = self.busyTime
+        #     self.bankMemoryAddr[idx] = mem_addr
+        #     return idx
+        # # End of continuous memory bank
+
         # STALL since there is not empty bank!
         return -1
 
@@ -279,7 +289,7 @@ class Backend(object):
                     self.VmemReturnQ = deque(busyMems)
                     self.VmemBankQ.popleft()
                     # No need to pass the time_left as it will be processed by memory bank
-                    self.VmemPipeline.append((task, len(busyMems) - 1, busyReg))
+                    self.VmemPipeline.append((task, 0, busyReg))
                     return True
         else:
             # Either the type is not correct or the pipeline is full
@@ -365,7 +375,7 @@ class Backend(object):
                 # Reset VmemPipeline
                 self.VmemPipeline.clear()
             else:
-                # Count down (actually not needed)
+                # Count down
                 task["cycle"] += 1
                 if len(self.VmemBankQ) != 0:
                     # Try to add bank

@@ -1,0 +1,10 @@
+IO Directory: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small
+IMEM - Instructions loaded from file: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\Code.asm
+IMEM - Instructions: ['LS SR1 SR0 5', 'LV VR1 SR1', 'LS SR3 SR0 1', 'MTCL SR3', 'LS SR4 SR0 2', 'LS SR6 SR0 4', 'LV VR2 SR0', 'LS SR1 SR0 6', 'LVI VR3 SR0 VR1', 'MULVV VR3 VR3 VR2', 'ADDVV VR0 VR0 VR3', 'SV VR0 SR4', 'BEQ SR3 SR6 7', 'SRA SR3 SR3 SR6', 'MTCL SR3', 'ADD SR5 SR4 SR3', 'LV VR4 SR5', 'ADDVV VR0 VR0 VR4', 'BEQ SR0 SR0 -7', 'LS SR3 SR0 1', 'MTCL SR3', 'ADDVS VR1 VR1 SR6', 'SUB SR1 SR1 SR6', 'ADD SR4 SR4 SR6', 'ADD SR2 SR2 SR6', 'ADDVV VR0 VR5 VR5', 'HALT']
+SDMEM - Data loaded from file: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\SDMEM.txt
+VDMEM - Data loaded from file: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\VDMEM.txt
+PC:  0  Instr:  ['LS', 'SR1', 'SR0', '5']  SR1:  0
+SRF - Dumped data into output file in path: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\SRF.txt
+VRF - Dumped data into output file in path: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\VRF.txt
+SDMEM - Dumped data into output file in path: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\SDMEMOP.txt
+VDMEM - Dumped data into output file in path: C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\VDMEMOP.txt

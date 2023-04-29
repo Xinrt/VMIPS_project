@@ -21,46 +21,45 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 **SDMEM:** Scalar Data Memory with a capacity of **32 KB**, word addressable.
 
 ### Question to ask
-- [ ] Q: If there is a stall should I still IF?
+- [x] Q: If there is a stall should I still IF?
   - A: 
-- [ ] Q: how will stall number be calculated? 
+- [x] Q: how will stall number be calculated? 
   - A: it does not have to be calculated
-- [ ] Q: what is VDM partition?
+- [x] Q: what is VDM partition?
+  - A: Banks partition the memories in interleaved way.
+- [x] Q: for the vlsPipelineDepth, can I assume each vector mem load/store will simply cost vlsPipelineDepth cycle? Or they should also be vlsPipelineDepth + number of vector elements load/store - 1?
   - A:
-- [ ] Q: for the vlsPipelineDepth, can I assume each vector mem load/store will simply cost vlsPipelineDepth cycle? Or they should also be vlsPipelineDepth + number of vector elements load/store - 1?
-  - A:
-- [ ] Q: what determines stall in mem access? ![bank_conflict](readme_pic/WeChat%20Image_20230420232250.png)
+- [x] Q: what determines stall in mem access? ![bank_conflict](readme_pic/WeChat%20Image_20230420232250.png)
   - A: The formula should be greatest common divisor
-- [ ] Q: what about Scalar MEM? should I also resolve the scalar memory conflict? Or they simply take one cycle so they don't need to resolve the conflict? suppose I have LV VR0 (0, 1, 2, …. 63) then LV VR1 (0, 1, 2, …. 63), do I need to stall the second instruction? **code line 541**
+- [x] Q: what about Scalar MEM? should I also resolve the scalar memory conflict? Or they simply take one cycle so they don't need to resolve the conflict? suppose I have LV VR0 (0, 1, 2, …. 63) then LV VR1 (0, 1, 2, …. 63), do I need to stall the second instruction? **code line 541**
   - A: 
-- [ ] Q: expected output? per cycle or per instruction, or both?
+- [x] Q: expected output? per cycle or per instruction, or both?
   - A: only need an overall cycle time
-- [ ] Q: Cycle needed for Vector Mask Register Operations? **code line 408**
+- [x] Q: Cycle needed for Vector Mask Register Operations? **code line 408**
   - A:keep it same with add
-- [ ] Q: What will happen in the vector compute if the VLR == 0? **code line 186**
+- [x] Q: What will happen in the vector compute if the VLR == 0? **code line 186**
   - A: only go throught the pipelineDepth cycle
-- [ ] Q: Are Vmem access complete as a whole, or it can be cleared from VMEM Busyboard one by one? **code line 208**
-  - A:
-- [ ] Q: If not, how frequently will the memory back? **code line 300**
-  - A:
-- [ ] Q: What registers will be count as busy, all of them? Or only the write back one?
+- [x] Q: Are Vmem access complete as a whole, or it can be cleared from VMEM Busyboard one by one? **code line 208**
+  - A: It is access one memory by one memory
+- [x] Q: If not, how frequently will the memory back? **code line 300**
+  - A: One memory by one memory
+- [x] Q: What registers will be count as busy, all of them? Or only the write back one?
   - A: only the WB one
-- [ ] Q: Do both LV(read mem) or SV(write) mems counted as busy, all of them? Or only the write back one?
-  - A: 
-- [ ] Q: naming of resolved code file?
-  - A:
-- [ ] Q: use of vlr.txt? what is its conventional name?
-  - A:
-- [ ] Q: performance of your design for all three functions: what three? DP, FC, and?
-  - A:
-- [ ] Q: When WB to vector register, do I need to check whether rd is also busy? code line 412(Vector compute), 538(Vector mem) Maybe because there are two pipeline for compute and mem access and ordering for WB is important
-  - A:
-- [ ] Q: What about WB to scalar register, since they are all 1 cycle, do I really need to care whether rd will have conflict? code line 566(Scalar mem), 590(Scalar compute)
-  - A: 
-- [ ] Q: The busyboard update seems have some bugs, for example when two consecutive instructions are going to write to a same register rd, then when the first one got back the busyborad will be cleared but the second one still have to secure the rd, **maybe change the busyboard as a semephore rather than a lock?**
+- [x] Q: Do both LV(read mem) or SV(write) mems counted as busy, all of them? Or only the write back one?
+  - A: The busy one is the bank, not the mem address
+- [x] Q: naming of resolved code file?
+  - A: Depending on my own implementation
+- [x] Q: use of vlr.txt? what is its conventional name?
+  - A: That's OK
+- [x] Q: performance of your design for all three functions: what three? DP, FC, and?
+  - A: Depending on my own implementation
+- [x] Q: When WB to vector register, do I need to check whether rd is also busy? code line 412(Vector compute), 538(Vector mem) Maybe because there are two pipeline for compute and mem access and ordering for WB is important
+  - A: Yes WB still needed to be checked
+- [x] Q: What about WB to scalar register, since they are all 1 cycle, do I really need to care whether rd will have conflict? code line 566(Scalar mem), 590(Scalar compute)
+  - A: Yes WB still needed to be checked
+- [x] Q: The busyboard update seems have some bugs, for example when two consecutive instructions are going to write to a same register rd, then when the first one got back the busyborad will be cleared but the second one still have to secure the rd, **maybe change the busyboard as a semephore rather than a lock?**
   - A:Use semephore maybe
- - [ ] Q:
-  - A:
+
 
 ### TODO
 - [x] Functional simulator
@@ -71,7 +70,8 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 - [x] Timing simulator
   - [x] Backend
   - [x] Frontend
-- [ ] Fully Connected Layer Assembly
+- [x] Fully Connected Layer Assembly
+- [x] Conv Layer Assembly
 - [ ] Optimization
 - [ ] Measure and plot the performance of your design for all three functions (including the dot product from part1) by varying the model parameters (different configurations)
 - [ ] report

@@ -93,7 +93,7 @@ https://www.overleaf.com/6474812394bgkjvbmvrgps
 
 ### TODO
 
-- [ ] VMR should not affect execution, it should only affect WB and mem access
+- [x] VMR should not affect execution, it should only affect WB and mem access
 
 ### Questions
 

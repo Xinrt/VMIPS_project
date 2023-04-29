@@ -9,6 +9,21 @@ from collections import deque
 complete_list = []
 vlr_list = []
 
+def copy_file_contents(iodir, output_str):
+    # check if file exists at the specified directory path
+    if os.path.exists(iodir):
+        # open the file for reading
+        with open(iodir, 'r') as file:
+            # read the contents of the file
+            file_contents = file.read() + "\n"
+            # concatenate the file contents to the front of output_str
+            new_output_str = "\n\n" + file_contents + "\n\n" + output_str
+            # print(f"All contents of file {iodir} copied to the front of {output_str}")
+            return new_output_str
+    else:
+        print(f"File not found at {iodir}")
+        return output_str
+    
 def parseInstr(instrStr: str):
      # Check if the input string matches the format "LV VR1 (0,1,...)"
     match = re.match(r'^(\w+)\s+(\w+)\s+\((\d+(?:,\s*\d+)*)\)$', instrStr)
@@ -768,7 +783,8 @@ if __name__ == "__main__":
     output_str = ""
     for d in sorted_lst:
         output_str += f"{d['Instr']} latency: {d['cycle']}\n"
-    output_str += "Total cycle: " + str(total_cycle)
+    output_str = copy_file_contents(iodir=os.path.abspath(os.path.join(iodir, "Config.txt")), output_str=output_str) # Put the total cycle to the front
+    output_str = "Total cycle: " + str(total_cycle) + "\n" + output_str
     # output instruction level latency
     vlr_file = open(iodir + "/instruction_latency.txt", "w")
     vlr_file.write(output_str)

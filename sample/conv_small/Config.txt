@@ -9,6 +9,6 @@ vlsPipelineDepth = 11
 
 # Compute Pipeline parameters
 numLanes = 4
-pipelineDepthMul = 12
-pipelineDepthAdd = 2
-pipelineDepthDiv = 8
+pipelineDepthMul = 18
+pipelineDepthAdd = 4
+pipelineDepthDiv = 12

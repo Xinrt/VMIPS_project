@@ -1,5 +1,7 @@
 # VMIPS Project
 
+Authors: Tianheng Xiang tx701, Xinran Tang xt2191
+
 ## Part 2 - Timing Simulator
 
 ### Environment Request

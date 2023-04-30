@@ -1,6 +1,6 @@
-$pythonFile = "xt2191_tx701_timingsimulator.py"
-$sourceFolder = "C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small"
-$outputFolder = "C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv_small\output"
+$pythonFile = "xt2191_tx701_timingsimulator_optimization.py"
+$sourceFolder = "C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv"
+$outputFolder = "C:\Users\xiang\Documents\2023Spring\9413\VMIPS_project\sample\conv\output"
 
 if (-not (Test-Path -Path $outputFolder)) {
     New-Item -ItemType Directory -Path $outputFolder | Out-Null

@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex timing_report"] 1682860788 "timing_report.aux" "timing_report.bbl" "timing_report" 1682860892
+["bibtex timing_report"] 1682862835 "timing_report.aux" "timing_report.bbl" "timing_report" 1682862999
   "C:/Users/xiang/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
   "references.bib" 1682860772 258 88d00f22776891ada7f97a241754b827 ""
-  "timing_report.aux" 1682860802 2485 04ef88981ad0dfcf7529e487ad207fe6 "pdflatex"
+  "timing_report.aux" 1682862997 2721 0a2d692d4708d19e50e27d03d534352d "pdflatex"
   (generated)
   "timing_report.bbl"
   "timing_report.blg"
-["pdflatex"] 1682860789 "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex" "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.pdf" "timing_report" 1682860892
+["pdflatex"] 1682862980 "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex" "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.pdf" "timing_report" 1682862999
   "C:/Users/xiang/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1621213332 10294490 4d1a29083171b59e9a2f100d9b08c8d8 ""
   "C:/Users/xiang/AppData/Local/MiKTeX/pdftex/config/pdftex.map" 1675159624 125719 0077ca0a39f61c3733f35e3210f0eab9 ""
   "C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -94,18 +94,19 @@
   "C:/Users/xiang/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/xiang/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1463135581 57049 34128738f682d033422ca125f82e5d62 ""
   "IEEEtran.cls" 1682824807 288304 5b2e4fa15b0f7eabb840ebf67df4c0f7 ""
-  "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.aux" 1682860802 2485 04ef88981ad0dfcf7529e487ad207fe6 ""
-  "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex" 1682860889 12694 82ff4279715a62e92be950484c8a2c3a ""
-  "picture//only_dp_subplots.png" 1682855761 1592360 ba59d23895a804b87ba70791d9df1465 ""
+  "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.aux" 1682862997 2721 0a2d692d4708d19e50e27d03d534352d ""
+  "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex" 1682862975 13483 38ae39cbc61242522c4fb24395dec459 ""
+  "picture//Optimized_mem.png" 1682862367 1313888 324b1072ab1fe28899ab8a2c0b660723 ""
+  "picture//only_dp_subplots.png" 1682862363 1592360 ba59d23895a804b87ba70791d9df1465 ""
   "picture//wo_dp_subplots_annot.png" 1682857566 2143988 dcc137bcfefa55d0d5ea503ade1ccf32 ""
-  "timing_report.aux" 1682860802 2485 04ef88981ad0dfcf7529e487ad207fe6 "pdflatex"
-  "timing_report.bbl" 1682860789 1144 e6def575fabd72df41baa4ba25cb5156 "bibtex timing_report"
-  "timing_report.out" 1682860802 599 00891d1c217fcef9b1849c912a7b4c6f "pdflatex"
-  "timing_report.tex" 1682860889 12694 82ff4279715a62e92be950484c8a2c3a ""
+  "timing_report.aux" 1682862997 2721 0a2d692d4708d19e50e27d03d534352d "pdflatex"
+  "timing_report.bbl" 1682862836 1144 e6def575fabd72df41baa4ba25cb5156 "bibtex timing_report"
+  "timing_report.out" 1682862997 599 00891d1c217fcef9b1849c912a7b4c6f "pdflatex"
+  "timing_report.tex" 1682862975 13483 38ae39cbc61242522c4fb24395dec459 ""
   (generated)
   "timing_report.pdf"
   "timing_report.log"
-  "timing_report.out"
-  "timing_report.aux"
-  "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.log"
   "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.pdf"
+  "timing_report.aux"
+  "timing_report.out"
+  "c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.log"

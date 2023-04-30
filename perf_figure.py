@@ -10,6 +10,7 @@ vdmBanks = np.array([3,7,10,13,16])
 dp_vdmBanks = np.array([4620,2408,1910,1812,1812])
 fc_vdmBanks = np.array([765192,401672,320264,304392,304392])
 conv_vdmBanks = np.array([694786,402647,335087,343825,317575])
+conv_vdmBanks_opt = np.array([694786, 384522, 319462, 306325, 317575])
 
 # numLanes 2 3 1 4 5
 numLanes = np.array([1,2,4,6,10])
@@ -111,3 +112,14 @@ data_plot_with_dp(x_axis=vlsPipelineDepth, y_axis=[dp_vlsPipelineDepth, fc_vlsPi
 data_plot_with_dp(x_axis=pipelineDepthMul, y_axis=[dp_pipelineDepthMul, fc_pipelineDepthMul, conv_pipelineDepthMul], x_label='Multiplication Pipeline Depth', file_name='pipelineDepthMul')
 data_plot_with_dp(x_axis=pipelineDepthAdd, y_axis=[dp_pipelineDepthAdd, fc_pipelineDepthAdd, conv_pipelineDepthAdd], x_label='Addition Pipeline Depth', file_name='pipelineDepthAdd')
 plt.close()
+
+# Plot the optimized mem access
+plt.plot(vdmBanks, fc_vdmBanks, 'o-', label='Fully Connected Layer')
+plt.plot(vdmBanks, conv_vdmBanks, 'o-', label='Convolution')
+plt.plot(vdmBanks, conv_vdmBanks_opt, 'o-', label='Convolution with optimized memory access')
+# plt.yscale('log')
+plt.xlabel('# Vector Data Memory Bank')
+plt.ylabel('# Cycle')
+plt.legend()
+plt.grid()
+plt.savefig(os.path.abspath(os.path.join(path, "Optimized_mem")), dpi=dpi)

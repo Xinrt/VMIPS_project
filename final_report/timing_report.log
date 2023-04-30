@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.3) (preloaded format=pdflatex 2021.5.16)  30 APR 2023 09:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.3) (preloaded format=pdflatex 2021.5.16)  30 APR 2023 09:56
 entering extended mode
 **c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex
 (c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex
@@ -427,7 +427,21 @@ Overfull \hbox (6.0pt too wide) in paragraph at lines 104--105
  [][] 
  []
 
-[2 <c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/picture//only_dp_subplots.png>] (c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.bbl)
+[2 <c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/picture//only_dp_subplots.png>]
+<picture//Optimized_mem.png, id=70, 462.528pt x 346.896pt>
+File: picture//Optimized_mem.png Graphic file (type png)
+<use picture//Optimized_mem.png>
+Package pdftex.def Info: picture//Optimized_mem.png  used on input line 125.
+(pdftex.def)             Requested size: 258.0pt x 193.50879pt.
+
+Overfull \hbox (6.0pt too wide) in paragraph at lines 125--126
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+(c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.bbl)
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -439,24 +453,22 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[3
-
- <c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/picture//wo_dp_subplots_annot.png>] (c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.aux)
+[3 <c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/picture//wo_dp_subplots_annot.png> <c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/picture//Optimized_mem.png>] (c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.aux)
 Package rerunfilecheck Info: File `timing_report.out' has not changed.
 (rerunfilecheck)             Checksum: 00891D1C217FCEF9B1849C912A7B4C6F;599.
  ) 
 Here is how much of TeX's memory you used:
- 7918 strings out of 479795
- 123389 string characters out of 2869645
- 431420 words of memory out of 3000000
- 24750 multiletter control sequences out of 15000+600000
+ 7926 strings out of 479795
+ 123576 string characters out of 2869645
+ 431482 words of memory out of 3000000
+ 24756 multiletter control sequences out of 15000+600000
  568397 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  66i,8n,72p,2344b,373s stack positions out of 5000i,500n,10000p,200000b,80000s
 {C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}<C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.pdf (3 pages, 3786302 bytes).
+Output written on c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.pdf (3 pages, 5060823 bytes).
 PDF statistics:
- 97 PDF objects out of 1000 (max. 8388607)
- 17 named destinations out of 1000 (max. 500000)
- 91 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 101 PDF objects out of 1000 (max. 8388607)
+ 18 named destinations out of 1000 (max. 500000)
+ 96 words of extra memory for PDF output out of 10000 (max. 10000000)
 

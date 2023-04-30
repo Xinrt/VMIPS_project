@@ -118,6 +118,15 @@ The performance result of the dot product is shown in Fig \ref{fig:fc_conv}. We 
 \section{Optimization}
 Base on the results of the test cases, we could see that the most influencial factor to the performance is vector memory access, and we can also validate this through examining the per-instruction latency: most latency occurs in the instructions that perform vector memory access and any instructions that has dependency on these memory access. Thus, one optimization I purpose is that, instead of sequntially request the memory access base on the its order in the request queue, we can try to request all the memory inside the request queue if there exist any bank conflicts in the previous tries. 
 
+After the optimization of the memory access, shown in Fig \ref{fig:opt_mem} the convolution performance(green line) is now achieving better performance comparing with the previous edition of the timing simulator. However, the cycle number bounce back when the number of vector data memory bank is 16, and reaches the exactly same number of cycle with the baseline configuration. This result is confusing and needs further inspection. Also the time that searching for the available memory address is not included in the cycle counting, thus the actual effect of this optimization is doubtful.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Optimized_mem.png}
+    \caption{Performance with optimized memory access}
+    \label{fig:opt_mem}
+\end{figure}
+
 \nocite{*}
 \bibliographystyle{IEEEtran}
 \bibliography{references}

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 path = os.path.abspath("C:\\Users\\xiang\\Documents\\2023Spring\\9413\\VMIPS_project\\final_report\\picture")
-dpi = 600
+dpi = 2000
 
 # vdmBanks descending 5 4 3 2 1
 vdmBanks = np.array([3,7,10,13,16])
@@ -41,23 +41,35 @@ dp_pipelineDepthAdd = np.array([1812,1854,1896,1938,1980])
 fc_pipelineDepthAdd = np.array([304392,312840,321288,329736,338184])
 conv_pipelineDepthAdd = np.array([317575,328903,340231,351559,362887])
 
+max_row = 3 # Max two row
+max_col = 2 # Max three col
+sub_total = 1
+total_wodp_file_name = "wo_dp_subplots"
+plt.rcParams['font.size'] = 6
 def data_plot(x_axis, y_axis, x_label, file_name):
-    plt.plot(x_axis, y_axis[0], 'o-', label='Dot product')
+    global max_row, max_col
+    global sub_total, total_wodp_file_name
+    plt.tight_layout()
+    plt.subplot(max_row, max_col, sub_total)
+    
     plt.plot(x_axis, y_axis[1], 'o-', label='Fully Connected Layer')
     plt.plot(x_axis, y_axis[2], 'o-', label='Convolution')
-    plt.yscale('log')
+    # plt.yscale('log')
     plt.xlabel(x_label)
     plt.ylabel('# Cycle')
     plt.legend()
     plt.grid()
-    plt.savefig(os.path.abspath(os.path.join(path, file_name)), dpi=dpi)
-    plt.close()
+    if sub_total == max_col * max_row:
+        plt.savefig(os.path.abspath(os.path.join(path, total_wodp_file_name)), dpi=dpi)
+    sub_total += 1
+
+
 
 # Plot for vdmBanks
 data_plot(x_axis=vdmBanks, y_axis=[dp_vdmBanks, fc_vdmBanks, conv_vdmBanks], x_label='# Vector Data Memory Bank', file_name='vdmBanks')
 
 # Plot for numLanes
-data_plot(x_axis=numLanes, y_axis=[dp_numLanes, fc_numLanes, conv_numLanes], x_label='# Vector Data Memory Bank', file_name='numLanes')
+data_plot(x_axis=numLanes, y_axis=[dp_numLanes, fc_numLanes, conv_numLanes], x_label='# Vector Compute Lane', file_name='numLanes')
 
 # Plot for queueDepth
 data_plot(x_axis=queueDepth, y_axis=[dp_queueDepth, fc_queueDepth, conv_queueDepth], x_label='Queue Depth', file_name='queueDepth')
@@ -70,3 +82,32 @@ data_plot(x_axis=pipelineDepthMul, y_axis=[dp_pipelineDepthMul, fc_pipelineDepth
 
 # Plot for pipelineDepthAdd
 data_plot(x_axis=pipelineDepthAdd, y_axis=[dp_pipelineDepthAdd, fc_pipelineDepthAdd, conv_pipelineDepthAdd], x_label='Addition Pipeline Depth', file_name='pipelineDepthAdd')
+plt.close()
+
+max_row = 3 # Max two row
+max_col = 2 # Max three col
+sub_total = 1 # Reset sub_total for subplot
+total_only_dp_file_name = "only_dp_subplots"
+plt.rcParams['font.size'] = 6
+def data_plot_with_dp(x_axis, y_axis, x_label, file_name):
+    global sub_total, max_col, max_row
+    plt.tight_layout()
+    plt.subplot(max_row, max_col, sub_total)
+    plt.plot(x_axis, y_axis[0], 'o-')
+    plt.xlabel(x_label)
+    plt.ylabel('# Cycle')
+    # plt.legend()
+    plt.grid()
+    if sub_total == max_col * max_row:
+        plt.savefig(os.path.abspath(os.path.join(path, total_only_dp_file_name)), dpi=dpi)
+    sub_total += 1
+
+
+# Plot the DP plots
+data_plot_with_dp(x_axis=vdmBanks, y_axis=[dp_vdmBanks, fc_vdmBanks, conv_vdmBanks], x_label='# Vector Data Memory Bank', file_name='vdmBanks')
+data_plot_with_dp(x_axis=numLanes, y_axis=[dp_numLanes, fc_numLanes, conv_numLanes], x_label='# Vector Compute Lane', file_name='numLanes')
+data_plot_with_dp(x_axis=queueDepth, y_axis=[dp_queueDepth, fc_queueDepth, conv_queueDepth], x_label='Queue Depth', file_name='queueDepth')
+data_plot_with_dp(x_axis=vlsPipelineDepth, y_axis=[dp_vlsPipelineDepth, fc_vlsPipelineDepth, conv_vlsPipelineDepth], x_label='Vector L/S Pipeline Depth', file_name='vlsPipelineDepth')
+data_plot_with_dp(x_axis=pipelineDepthMul, y_axis=[dp_pipelineDepthMul, fc_pipelineDepthMul, conv_pipelineDepthMul], x_label='Multiplication Pipeline Depth', file_name='pipelineDepthMul')
+data_plot_with_dp(x_axis=pipelineDepthAdd, y_axis=[dp_pipelineDepthAdd, fc_pipelineDepthAdd, conv_pipelineDepthAdd], x_label='Addition Pipeline Depth', file_name='pipelineDepthAdd')
+plt.close()

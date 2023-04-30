@@ -2,6 +2,21 @@
 
 ## Part 2 - Timing Simulator
 
+### Environment Request
+```
+python >= 3.11.0
+```
+### Usage
+```
+<!-- Generate the required resolved_Code.asm and the vlr.txt for timing simulator -->
+python xt2191_tx701_funcsimulator.py --iodir [path/to/the/test]
+<!-- Perform performance test on the assembly -->
+<!-- All the three test case are in sample folder called conv, dp and fc -->
+<!-- The output should be an instruction_latency.txt contains -->
+<!-- total cycle count, the current config and the per-instruction latency -->
+python xt2191_tx701_timingsimulator.py --iodir [path/to/the/test]
+```
+
 ### Block Diagram
 
 https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=sharing

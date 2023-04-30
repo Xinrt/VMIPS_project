@@ -4,7 +4,7 @@ Authors: Tianheng Xiang tx701, Xinran Tang xt2191
 
 ## Part 2 - Timing Simulator
 
-### Environment Request
+### Environment Requirements
 ```
 python >= 3.11.0
 ```
@@ -21,21 +21,9 @@ python xt2191_tx701_timingsimulator.py --iodir [path/to/the/test]
 
 ### Block Diagram
 
-https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=sharing
+![](./readme_pic/VMIPS_structure.png)
 
 
-
-**IMEM**: stores all instructions that can be read (Code.asm file)
-
-**VRF**: contains 8 Vector Registers each with a maximum capacity of 2048 bits or 256 bytes or 64
-
-32-bit elements. Maximum Vector Length is set to 64
-
-**SRF**: contains 8 Scalar Registers of 32 bits each
-
-**VDMEM:** Vector Data Memory with a capacity of **512 KB**, word addressable
-
-**SDMEM:** Scalar Data Memory with a capacity of **32 KB**, word addressable.
 
 ### Question to ask
 - [x] Q: If there is a stall should I still IF?
@@ -92,17 +80,7 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
 - [x] Optimization
 - [x] Measure and plot the performance of your design for all three functions (including the dot product from part1) by varying the model parameters (different configurations)
 - [x] report
-- [ ] block diagram
-
-### Report
-
-https://www.overleaf.com/6474812394bgkjvbmvrgps
-
-
-
-
-
-
+- [x] block diagram
 
 
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.3) (preloaded format=pdflatex 2021.5.16)  30 APR 2023 08:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.3) (preloaded format=pdflatex 2021.5.16)  30 APR 2023 09:19
 entering extended mode
 **c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex
 (c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/timing_report.tex
@@ -331,7 +331,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 )
 \Hy@SectionHShift=\skip59
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 29.
+Package hyperref Info: Option `colorlinks' set `true' on input line 30.
  (C:\Users\xiang\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2020-09-24 L3 backend support: PDF output (pdfTeX)
 \l__kernel_color_stack_int=\count283
@@ -339,22 +339,22 @@ File: l3backend-pdftex.def 2020-09-24 L3 backend support: PDF output (pdfTeX)
 ) (c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.aux)
 \openout1 = `timing_report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 33.
+LaTeX Font Info:    ... okay on input line 33.
 
 -- Lines per column: 56 (exact).
 (C:\Users\xiang\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
@@ -376,7 +376,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (C:\Users\xiang\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring ON on input line 32.
+Package hyperref Info: Link coloring ON on input line 33.
  (C:\Users\xiang\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
  (C:\Users\xiang\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
@@ -386,46 +386,46 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count290
 )
-LaTeX Info: Redefining \ref on input line 32.
-LaTeX Info: Redefining \pageref on input line 32.
-LaTeX Info: Redefining \nameref on input line 32.
+LaTeX Info: Redefining \ref on input line 33.
+LaTeX Info: Redefining \pageref on input line 33.
+LaTeX Info: Redefining \nameref on input line 33.
  (c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.out) (c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.out)
 \@outlinefile=\write3
 \openout3 = `timing_report.out'.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 59.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 60.
  (C:\Users\xiang\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 59.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 60.
  (C:\Users\xiang\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1{C:/Users/xiang/AppData/Local/MiKTeX/pdftex/config/pdftex.map}
+)
+Underfull \vbox (badness 4378) has occurred while \output is active []
+
+ [1{C:/Users/xiang/AppData/Local/MiKTeX/pdftex/config/pdftex.map}
 
 
 ]
-<picture//only_dp_subplots.png, id=61, 462.528pt x 346.896pt>
+<picture//only_dp_subplots.png, id=58, 462.528pt x 346.896pt>
 File: picture//only_dp_subplots.png Graphic file (type png)
 <use picture//only_dp_subplots.png>
-Package pdftex.def Info: picture//only_dp_subplots.png  used on input line 95.
+Package pdftex.def Info: picture//only_dp_subplots.png  used on input line 97.
 (pdftex.def)             Requested size: 258.0pt x 193.50879pt.
 
-Overfull \hbox (6.0pt too wide) in paragraph at lines 95--96
+Overfull \hbox (6.0pt too wide) in paragraph at lines 97--98
  [][] 
  []
 
-<picture//wo_dp_subplots_annot.png, id=63, 9636.0pt x 7227.0pt>
+<picture//wo_dp_subplots_annot.png, id=60, 9636.0pt x 7227.0pt>
 File: picture//wo_dp_subplots_annot.png Graphic file (type png)
 <use picture//wo_dp_subplots_annot.png>
-Package pdftex.def Info: picture//wo_dp_subplots_annot.png  used on input line 102.
+Package pdftex.def Info: picture//wo_dp_subplots_annot.png  used on input line 104.
 (pdftex.def)             Requested size: 258.0pt x 193.42235pt.
 
-Overfull \hbox (6.0pt too wide) in paragraph at lines 102--103
+Overfull \hbox (6.0pt too wide) in paragraph at lines 104--105
  [][] 
  []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
 
 [2 <c:/Users/xiang/Documents/2023Spring/9413/VMIPS_project/final_report/picture//only_dp_subplots.png>] (c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.bbl)
 
@@ -447,16 +447,16 @@ Package rerunfilecheck Info: File `timing_report.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  7918 strings out of 479795
- 123335 string characters out of 2869645
- 431393 words of memory out of 3000000
+ 123389 string characters out of 2869645
+ 431420 words of memory out of 3000000
  24750 multiletter control sequences out of 15000+600000
  568397 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 66i,8n,72p,2344b,479s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 66i,8n,72p,2344b,373s stack positions out of 5000i,500n,10000p,200000b,80000s
 {C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}<C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/xiang/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.pdf (3 pages, 3786146 bytes).
+Output written on c:/Users\xiang\Documents\2023Spring\9413\VMIPS_project\final_report\timing_report.pdf (3 pages, 3786302 bytes).
 PDF statistics:
- 98 PDF objects out of 1000 (max. 8388607)
+ 97 PDF objects out of 1000 (max. 8388607)
  17 named destinations out of 1000 (max. 500000)
  91 words of extra memory for PDF output out of 10000 (max. 10000000)
 

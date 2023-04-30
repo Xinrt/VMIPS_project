@@ -89,9 +89,9 @@ https://drive.google.com/file/d/1S4prlxiWLBiUCTZyhvQu7hd75QJbSpg1/view?usp=shari
   - [x] Frontend
 - [x] Fully Connected Layer Assembly
 - [x] Conv Layer Assembly
-- [ ] Optimization
-- [ ] Measure and plot the performance of your design for all three functions (including the dot product from part1) by varying the model parameters (different configurations)
-- [ ] report
+- [x] Optimization
+- [x] Measure and plot the performance of your design for all three functions (including the dot product from part1) by varying the model parameters (different configurations)
+- [x] report
 - [ ] block diagram
 
 ### Report

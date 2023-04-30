@@ -1,5 +1,6 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
+
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -31,13 +32,13 @@
 
 \begin{document}
 
-\title{Final Project Report}
+\title{Functional and Timing Simulator base on VMIPS Project Report}
 \author{\IEEEauthorblockN{Tianheng Xiang tx701, Xinrang Tang xt2191}}
 \date{\today}
 \maketitle
 
 \begin{abstract}
-2-3 sentences mentioning the key contributions and takeaways from the paper. Sample citation: \cite{keshav2007read}.
+In this project we construct a functional simulator and a timing simulator to enumulate an architecture with baseline architecture VMIPS. Three test cases including dot product, fully connected layer and convolution assembly is generated and tested and benchmarked using the simulators. An optimization regarding decreasing the vector memory bank conflict in order to decrease the vector memory access stall along with the instructions that has dependency with it is purposed.
 \end{abstract}
 
 \section{Project Summary}
@@ -86,6 +87,7 @@ The performance result of the dot product is shown in Fig\ref{fig:dp}. The numbe
 
 \subsection{Fully Connected Layer and Convolution Result}
 The performance result of the dot product is shown in Fig \ref{fig:fc_conv}. We could see the same trend in dot product in all the 6 dimensions we measured. However, we could also see an anomoly circled in red in the top left figure in Fig\ref{fig:fc_conv}: the number of cycle executed in convolution assembly is higher when there is 13 memory banks than 10 memory banks. By further analyzing the per-instruction latency of this case, we find out that this is due to the use of LVI in the convolution assembly. LVI no longer access a complete set of continuous memory address but it may jump to different continuous memory subsets, which causing more bank conflicts and incuring more stalls not only in the memory access, but also for the rest of the instructions that has dependency on this instructions.
+
 \graphicspath{
     {picture/}
 }
@@ -116,6 +118,7 @@ The performance result of the dot product is shown in Fig \ref{fig:fc_conv}. We 
 \section{Optimization}
 Base on the results of the test cases, we could see that the most influencial factor to the performance is vector memory access, and we can also validate this through examining the per-instruction latency: most latency occurs in the instructions that perform vector memory access and any instructions that has dependency on these memory access. Thus, one optimization I purpose is that, instead of sequntially request the memory access base on the its order in the request queue, we can try to request all the memory inside the request queue if there exist any bank conflicts in the previous tries. 
 
+\nocite{*}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 

@@ -21,8 +21,9 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{keshav2007read}
-S.~Keshav, ``How to read a paper,'' \emph{ACM SIGCOMM Computer Communication
-  Review}, vol.~37, no.~3, pp. 83--84, 2007.
+\bibitem{hennessy_asanovic_goldberg_patterson_2004}
+J.~L. Hennessy, K.~Asanovic, D.~Goldberg, and D.~A. Patterson, \emph{Computer
+  Architecture: A quantitative approach}.\hskip 1em plus 0.5em minus
+  0.4em\relax Morgan Kaufmann, 2004.
 
 \end{thebibliography}
